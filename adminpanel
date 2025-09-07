@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Key System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #1a1a2e;
+            color: #fff;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background-color: #16213e;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #4cc9f0;
+        }
+        
+        .login-form {
+            background-color: #16213e;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        
+        input[type="text"],
+        input[type="password"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #4cc9f0;
+            border-radius: 5px;
+            background-color: #0f3460;
+            color: #fff;
+        }
+        
+        button {
+            background-color: #4cc9f0;
+            color: #16213e;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
+        
+        button:hover {
+            background-color: #2b6cb0;
+        }
+        
+        .dashboard {
+            display: none;
+        }
+        
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+            background-color: #16213e;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        .tab {
+            padding: 15px 20px;
+            cursor: pointer;
+            flex: 1;
+            text-align: center;
+            transition: background-color 0.3s;
+        }
+        
+        .tab.active {
+            background-color: #4cc9f0;
+            color: #16213e;
+            font-weight: bold;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .card {
+            background-color: #16213e;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #0f3460;
+        }
+        
+        th {
+            background-color: #0f3460;
+            color: #4cc9f0;
+        }
+        
+        tr:hover {
+            background-color: #0f3460;
+        }
+        
+        .action-btn {
+            padding: 5px 10px;
+            margin-right: 5px;
+            border-radius: 3px;
+            font-size: 12px;
+        }
+        
+        .btn-danger {
+            background-color: #e94560;
+        }
+        
+        .btn-success {
+            background-color: #4caf50;
+        }
+        
+        .btn-warning {
+            background-color: #ff9800;
+        }
+        
+        .status-badge {
+            padding: 3px 8px;
+            border-radius: 10px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        
+        .status-active {
+            background-color: #4caf50;
+            color: white;
+        }
+        
+        .status-expired {
+            background-color: #e94560;
+            color: white;
+        }
+        
+        .status-banned {
+            background-color: #ff9800;
+            color: white;
+        }
+        
+        .form-inline {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .form-inline input {
+            flex: 1;
+        }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 5px;
+            background-color: #4caf50;
+            color: white;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            display: none;
+            z-index: 1000;
+        }
+        
+        .notification.error {
+            background-color: #e94560;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🔐 ADMIN PANEL - KEY SYSTEM</h1>
+        </header>
+        
+        <div class="login-form" id="loginForm">
+            <h2>Đăng nhập Admin</h2>
+            <div class="form-group">
+                <label for="username">Username:</label>
+                <input type="text" id="username" placeholder="Nhập username">
+            </div>
+            <div class="form-group">
+                <label for="password">Password:</label>
+                <input type="password" id="password" placeholder="Nhập password">
+            </div>
+            <button id="loginBtn">Đăng nhập</button>
+        </div>
+        
+        <div class="dashboard" id="dashboard">
+            <div class="tabs">
+                <div class="tab active" data-tab="keys">Quản lý Keys</div>
+                <div class="tab" data-tab="users">Quản lý Users</div>
+                <div class="tab" data-tab="create">Tạo Key</div>
+            </div>
+            
+            <div class="tab-content active" id="keysTab">
+                <div class="card">
+                    <h2>Danh sách Keys</h2>
+                    <div class="form-inline">
+                        <input type="text" id="searchKey" placeholder="Tìm kiếm key...">
+                        <button id="searchBtn">Tìm kiếm</button>
+                    </div>
+                    <table id="keysTable">
+                        <thead>
+                            <tr>
+                                <th>Key</th>
+                                <th>User ID</th>
+                                <th>Username</th>
+                                <th>HWID</th>
+                                <th>Ngày tạo</th>
+                                <th>Hết hạn</th>
+                                <th>Trạng thái</th>
+                                <th>Hành động</th>
+                            </tr>
+                        </thead>
+                        <tbody id="keysList">
+                            <!-- Keys will be populated here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="tab-content" id="usersTab">
+                <div class="card">
+                    <h2>Danh sách Users</h2>
+                    <table id="usersTable">
+                        <thead>
+                            <tr>
+                                <th>User ID</th>
+                                <th>Username</th>
+                                <th>Số key</th>
+                                <th>Lần cuối</th>
+                                <th>Hành động</th>
+                            </tr>
+                        </thead>
+                        <tbody id="usersList">
+                            <!-- Users will be populated here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="tab-content" id="createTab">
+                <div class="card">
+                    <h2>Tạo Key Mới</h2>
+                    <div class="form-group">
+                        <label for="keyHours">Thời gian hiệu lực (giờ):</label>
+                        <input type="number" id="keyHours" value="24" min="1">
+                    </div>
+                    <button id="createKeyBtn">Tạo Key</button>
+                    <div id="createdKeyInfo" style="margin-top: 20px; display: none;">
+                        <h3>Key đã được tạo:</h3>
+                        <p id="newKeyValue"></p>
+                        <p id="newKeyExpiry"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="notification" id="notification"></div>
+    
+    <script>
+        const API_BASE = window.location.origin;
+        let authToken = '';
+        
+        document.getElementById('loginBtn').addEventListener('click', login);
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => switchTab(tab.dataset.tab));
+        });
+        
+        document.getElementById('searchBtn').addEventListener('click', loadKeys);
+        document.getElementById('createKeyBtn').addEventListener('click', createKey);
+        
+        function login() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            if (!username || !password) {
+                showNotification('Vui lòng nhập đầy đủ thông tin', true);
+                return;
+            }
+            
+            fetch(`${API_BASE}/admin/login`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ username, password })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    authToken = data.token;
+                    document.getElementById('loginForm').style.display = 'none';
+                    document.getElementById('dashboard').style.display = 'block';
+                    showNotification('Đăng nhập thành công');
+                    loadKeys();
+                    loadUsers();
+                } else {
+                    showNotification('Sai thông tin đăng nhập', true);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showNotification('Lỗi kết nối', true);
+            });
+        }
+        
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            
+            document.querySelector(`.tab[data-tab="${tabName}"]`).classList.add('active');
+            document.getElementById(`${tabName}Tab`).classList.add('active');
+        }
+        
+        function loadKeys() {
+            if (!authToken) return;
+            
+            const searchKey = document.getElementById('searchKey').value;
+            let url = `${API_BASE}/admin/keys`;
+            
+            fetch(url, {
+                headers: {
+                    'Authorization': `Bearer ${authToken}`
+                }
+            })
+            .then(response => response.json())
+            .then(keys => {
+                const keysList = document.getElementById('keysList');
+                keysList.innerHTML = '';
+                
+                if (keys.error) {
+                    showNotification(keys.error, true);
+                    return;
+                }
+                
+                // Filter keys if search term is provided
+                if (searchKey) {
+                    keys = keys.filter(key => 
+                        key.key.includes(searchKey) || 
+                        (key.user_id && key.user_id.includes(searchKey)) ||
+                        (key.username && key.username.includes(searchKey))
+                    );
+                }
+                
+                keys.forEach(key => {
+                    const row = document.createElement('tr');
+                    
+                    // Determine status
+                    let statusClass = '';
+                    let statusText = '';
+                    
+                    const now = new Date();
+                    const expiresAt = new Date(key.expires_at);
+                    
+                    if (key.banned) {
+                        statusClass = 'status-banned';
+                        statusText = 'BANNED';
+                    } else if (now > expiresAt) {
+                        statusClass = 'status-expired';
+                        statusText = 'EXPIRED';
+                    } else if (key.used) {
+                        statusClass = 'status-active';
+                        statusText = 'ACTIVE';
+                    } else {
+                        statusClass = 'status-active';
+                        statusText = 'UNUSED';
+                    }
+                    
+                    row.innerHTML = `
+                        <td>${key.key}</td>
+                        <td>${key.user_id || 'N/A'}</td>
+                        <td>${key.username || 'N/A'}</td>
+                        <td>${key.hwid || 'N/A'}</td>
+                        <td>${new Date(key.created_at).toLocaleString()}</td>
+                        <td>${new Date(key.expires_at).toLocaleString()}</td>
+                        <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+                        <td>
+                            ${key.user_id ? `
+                                <button class="action-btn ${key.banned ? 'btn-success' : 'btn-danger'}" onclick="toggleBanUser('${key.user_id}', ${!key.banned})">
+                                    ${key.banned ? 'UNBAN' : 'BAN'}
+                                </button>
+                            ` : ''}
+                            <button class="action-btn btn-warning" onclick="updateKeyExpiry('${key.key}')">Sửa TG</button>
+                            <button class="action-btn btn-danger" onclick="deleteKey('${key.key}')">Xóa</button>
+                        </td>
+                    `;
+                    
+                    keysList.appendChild(row);
+                });
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showNotification('Lỗi khi tải danh sách keys', true);
+            });
+        }
+        
+        function loadUsers() {
+            if (!authToken) return;
+            
+            fetch(`${API_BASE}/admin/users`, {
+                headers: {
+                    'Authorization': `Bearer ${authToken}`
+                }
+            })
+            .then(response => response.json())
+            .then(users => {
+                const usersList = document.getElementById('usersList');
+                usersList.innerHTML = '';
+                
+                if (users.error) {
+                    showNotification(users.error, true);
+                    return;
+                }
+                
+                users.forEach(user => {
+                    const row = document.createElement('tr');
+                    
+                    row.innerHTML = `
+                        <td>${user.user_id}</td>
+                        <td>${user.username || 'N/A'}</td>
+                        <td>${user.key_count}</td>
+                        <td>${new Date(user.last_used).toLocaleString()}</td>
+                        <td>
+                            <button class="action-btn btn-danger" onclick="banAllUserKeys('${user.user_id}')">BAN ALL</button>
+                            <button class="action-btn btn-success" onclick="unbanAllUserKeys('${user.user_id}')">UNBAN ALL</button>
+                        </td>
+                    `;
+                    
+                    usersList.appendChild(row);
+                });
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showNotification('Lỗi khi tải danh sách users', true);
+            });
+        }
+        
+        function createKey() {
+            if (!authToken) return;
+            
+            const hours = parseInt(document.getElementById('keyHours').value) || 24;
+            
+            fetch(`${API_BASE}/admin/create-key`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${authToken}`
+                },
+                body: JSON.stringify({ hours })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    document.getElementById('newKeyValue').textContent = `Key: ${data.key}`;
+                    document.getElementById('newKeyExpiry').textContent = `Hết hạn: ${new Date(data.expires).toLocaleString()}`;
+                    document.getElementById('createdKeyInfo').style.display = 'block';
+                    showNotification('Key đã được tạo thành công');
+                    loadKeys();
+                } else {
+                    showNotification(data.error || 'Lỗi khi tạo key', true);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showNotification('Lỗi khi tạo key', true);
+            });
+        }
+        
+        function updateKeyExpiry(key) {
+            if (!authToken) return;
+            
+            const hours = prompt(`Nhập số giờ mới cho key ${key}:`, "24");
+            
+            if (hours === null) return;
+            
+            fetch(`${API_BASE}/admin/update-key-expiry`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${authToken}`
+                },
+                body: JSON.stringify({ key, hours: parseInt(hours) })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showNotification(`Đã cập nhật thời gian key ${key} thành ${hours} giờ`);
+                    loadKeys();
+                } else {
+                    showNotification(data.error || 'Lỗi khi cập nhật key', true);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showNotification('Lỗi khi cập nhật key', true);
+            });
+        }
+        
+        function deleteKey(key) {
+            if (!authToken) return;
+            
+            if (!confirm(`Bạn có chắc chắn muốn xóa key ${key}?`)) return;
+            
+            fetch(`${API_BASE}/admin/delete-key/${key}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${authToken}`
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showNotification(`Đã xóa key ${key}`);
+                    loadKeys();
+                } else {
+                    showNotification(data.error || 'Lỗi khi xóa key', true);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showNotification('Lỗi khi xóa key', true);
+            });
+        }
+        
+        function toggleBanUser(userId, ban) {
+            if (!authToken) return;
+            
+            const endpoint = ban ? 'ban-user' : 'unban-user';
+            const action = ban ? 'ban' : 'unban';
+            
+            if (!confirm(`Bạn có chắc chắn muốn ${action} user ${userId}?`)) return;
+            
+            fetch(`${API_BASE}/admin/${endpoint}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${authToken}`
+                },
+                body: JSON.stringify({ user_id: userId })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showNotification(`Đã ${action} user ${userId}`);
+                    loadKeys();
+                    loadUsers();
+                } else {
+                    showNotification(data.error || `Lỗi khi ${action} user`, true);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showNotification(`Lỗi khi ${action} user`, true);
+            });
+        }
+        
+        function banAllUserKeys(userId) {
+            if (!authToken) return;
+            
+            if (!confirm(`Bạn có chắc chắn muốn BAN TẤT CẢ keys của user ${userId}?`)) return;
+            
+            fetch(`${API_BASE}/admin/ban-user`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${authToken}`
+                },
+                body: JSON.stringify({ user_id: userId })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showNotification(`Đã ban tất cả keys của user ${userId}`);
+                    loadKeys();
+                    loadUsers();
+                } else {
+                    showNotification(data.error || 'Lỗi khi ban user', true);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showNotification('Lỗi khi ban user', true);
+            });
+        }
+        
+        function unbanAllUserKeys(userId) {
+            if (!authToken) return;
+            
+            if (!confirm(`Bạn có chắc chắn muốn UNBAN TẤT CẢ keys của user ${userId}?`)) return;
+            
+            fetch(`${API_BASE}/admin/unban-user`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${authToken}`
+                },
+                body: JSON.stringify({ user_id: userId })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showNotification(`Đã unban tất cả keys của user ${userId}`);
+                    loadKeys();
+                    loadUsers();
+                } else {
+                    showNotification(data.error || 'Lỗi khi unban user', true);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showNotification('Lỗi khi unban user', true);
+            });
+        }
+        
+        function showNotification(message, isError = false) {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.className = isError ? 'notification error' : 'notification';
+            notification.style.display = 'block';
+            
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, 3000);
+        }
+        
+        // Make functions available globally
+        window.updateKeyExpiry = updateKeyExpiry;
+        window.deleteKey = deleteKey;
+        window.toggleBanUser = toggleBanUser;
+        window.banAllUserKeys = banAllUserKeys;
+        window.unbanAllUserKeys = unbanAllUserKeys;
+    </script>
+</body>
+</html>
