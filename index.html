@@ -30,12 +30,38 @@
             border-radius: 10px;
             margin-bottom: 20px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
         
         h1 {
             text-align: center;
-            margin-bottom: 20px;
+            margin-bottom: 0;
             color: #4cc9f0;
+        }
+        
+        .header-controls {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .refresh-btn {
+            background-color: #4cc9f0;
+            color: #16213e;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .refresh-btn:hover {
+            background-color: #2b6cb0;
         }
         
         .login-form {
@@ -57,7 +83,8 @@
         }
         
         input[type="text"],
-        input[type="password"] {
+        input[type="password"],
+        input[type="number"] {
             width: 100%;
             padding: 10px;
             border: 1px solid #4cc9f0;
@@ -217,6 +244,11 @@
     <div class="container">
         <header>
             <h1>🔐 ADMIN PANEL - KEY SYSTEM</h1>
+            <div class="header-controls" id="headerControls" style="display: none;">
+                <button class="refresh-btn" id="refreshBtn">
+                    <span>🔄</span> Refresh
+                </button>
+            </div>
         </header>
         
         <div class="login-form" id="loginForm">
@@ -237,6 +269,7 @@
                 <div class="tab active" data-tab="keys">Quản lý Keys</div>
                 <div class="tab" data-tab="users">Quản lý Users</div>
                 <div class="tab" data-tab="create">Tạo Key</div>
+                <div class="tab" data-tab="admins" id="adminsTabBtn" style="display: none;">Quản lý Admins</div>
             </div>
             
             <div class="tab-content active" id="keysTab">
@@ -290,8 +323,16 @@
                 <div class="card">
                     <h2>Tạo Key Mới</h2>
                     <div class="form-group">
+                        <label for="keyPrefix">Prefix cho key (mặc định: key-):</label>
+                        <input type="text" id="keyPrefix" value="key-">
+                    </div>
+                    <div class="form-group">
                         <label for="keyHours">Thời gian hiệu lực (giờ):</label>
                         <input type="number" id="keyHours" value="24" min="1">
+                    </div>
+                    <div class="form-group">
+                        <label for="keyPermanent">Key vĩnh viễn:</label>
+                        <input type="checkbox" id="keyPermanent">
                     </div>
                     <button id="createKeyBtn">Tạo Key</button>
                     <div id="createdKeyInfo" style="margin-top: 20px; display: none;">
@@ -299,6 +340,34 @@
                         <p id="newKeyValue"></p>
                         <p id="newKeyExpiry"></p>
                     </div>
+                </div>
+            </div>
+            
+            <div class="tab-content" id="adminsTab">
+                <div class="card">
+                    <h2>Danh sách Admins</h2>
+                    <div class="form-group">
+                        <label for="newAdminUsername">Username mới:</label>
+                        <input type="text" id="newAdminUsername" placeholder="Nhập username mới">
+                    </div>
+                    <div class="form-group">
+                        <label for="newAdminPassword">Password mới:</label>
+                        <input type="password" id="newAdminPassword" placeholder="Nhập password mới">
+                    </div>
+                    <button id="createAdminBtn">Tạo Admin</button>
+                    <table id="adminsTable">
+                        <thead>
+                            <tr>
+                                <th>Username</th>
+                                <th>Super Admin</th>
+                                <th>Ngày tạo</th>
+                                <th>Hành động</th>
+                            </tr>
+                        </thead>
+                        <tbody id="adminsList">
+                            <!-- Admins will be populated here -->
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
@@ -309,14 +378,17 @@
     <script>
         const API_BASE = "https://serverluexreal.onrender.com";
         let authToken = '';
+        let isSuperAdmin = false;
         
         document.getElementById('loginBtn').addEventListener('click', login);
+        document.getElementById('refreshBtn').addEventListener('click', refreshAll);
         document.querySelectorAll('.tab').forEach(tab => {
             tab.addEventListener('click', () => switchTab(tab.dataset.tab));
         });
         
         document.getElementById('searchBtn').addEventListener('click', loadKeys);
         document.getElementById('createKeyBtn').addEventListener('click', createKey);
+        document.getElementById('createAdminBtn').addEventListener('click', createAdmin);
         
         function login() {
             const username = document.getElementById('username').value;
@@ -338,11 +410,19 @@
             .then(data => {
                 if (data.success) {
                     authToken = data.token;
+                    isSuperAdmin = data.is_super_admin;
                     document.getElementById('loginForm').style.display = 'none';
                     document.getElementById('dashboard').style.display = 'block';
+                    document.getElementById('headerControls').style.display = 'flex';
+                    if (isSuperAdmin) {
+                        document.getElementById('adminsTabBtn').style.display = 'block';
+                    }
                     showNotification('Đăng nhập thành công');
                     loadKeys();
                     loadUsers();
+                    if (isSuperAdmin) {
+                        loadAdmins();
+                    }
                 } else {
                     showNotification('Sai thông tin đăng nhập', true);
                 }
@@ -353,7 +433,32 @@
             });
         }
         
+        function refreshAll() {
+            if (!authToken) return;
+            
+            showNotification('Đang làm mới dữ liệu...');
+            
+            // Làm mới danh sách keys
+            loadKeys();
+            
+            // Làm mới danh sách users
+            loadUsers();
+            
+            if (isSuperAdmin) {
+                loadAdmins();
+            }
+            
+            // Hiển thị thông báo thành công sau khi tải xong
+            setTimeout(() => {
+                showNotification('Đã làm mới tất cả dữ liệu');
+            }, 500);
+        }
+        
         function switchTab(tabName) {
+            if (tabName === 'admins' && !isSuperAdmin) {
+                return; // Không cho phép truy cập nếu không phải super admin
+            }
+            
             document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
             document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
             
@@ -399,12 +504,12 @@
                     let statusText = '';
                     
                     const now = new Date();
-                    const expiresAt = new Date(key.expires_at);
+                    const expiresAt = key.expires_at ? new Date(key.expires_at) : null;
                     
                     if (key.banned) {
                         statusClass = 'status-banned';
                         statusText = 'BANNED';
-                    } else if (now > expiresAt) {
+                    } else if (expiresAt && now > expiresAt && !key.permanent) {
                         statusClass = 'status-expired';
                         statusText = 'EXPIRED';
                     } else if (key.used) {
@@ -421,7 +526,7 @@
                         <td>${key.username || 'N/A'}</td>
                         <td>${key.hwid || 'N/A'}</td>
                         <td>${new Date(key.created_at).toLocaleString()}</td>
-                        <td>${new Date(key.expires_at).toLocaleString()}</td>
+                        <td>${key.permanent ? 'Vĩnh viễn' : (key.expires_at ? new Date(key.expires_at).toLocaleString() : 'N/A')}</td>
                         <td><span class="status-badge ${statusClass}">${statusText}</span></td>
                         <td>
                             ${key.user_id ? `
@@ -467,8 +572,8 @@
                     row.innerHTML = `
                         <td>${user.user_id}</td>
                         <td>${user.username || 'N/A'}</td>
-                        <td>${user.key_count}</td>
-                        <td>${new Date(user.last_used).toLocaleString()}</td>
+                        <td>${user.total_keys_used}</td>
+                        <td>${new Date(user.last_seen).toLocaleString()}</td>
                         <td>
                             <button class="action-btn btn-danger" onclick="banAllUserKeys('${user.user_id}')">BAN ALL</button>
                             <button class="action-btn btn-success" onclick="unbanAllUserKeys('${user.user_id}')">UNBAN ALL</button>
@@ -484,10 +589,51 @@
             });
         }
         
+        function loadAdmins() {
+            if (!authToken || !isSuperAdmin) return;
+            
+            fetch(`${API_BASE}/admin/admins`, {
+                headers: {
+                    'Authorization': `Bearer ${authToken}`
+                }
+            })
+            .then(response => response.json())
+            .then(admins => {
+                const adminsList = document.getElementById('adminsList');
+                adminsList.innerHTML = '';
+                
+                if (admins.error) {
+                    showNotification(admins.error, true);
+                    return;
+                }
+                
+                admins.forEach(admin => {
+                    const row = document.createElement('tr');
+                    
+                    row.innerHTML = `
+                        <td>${admin.username}</td>
+                        <td>${admin.is_super_admin ? 'Có' : 'Không'}</td>
+                        <td>${new Date(admin.created_at).toLocaleString()}</td>
+                        <td>
+                            ${!admin.is_super_admin ? `<button class="action-btn btn-danger" onclick="deleteAdmin('${admin.username}')">Xóa</button>` : ''}
+                        </td>
+                    `;
+                    
+                    adminsList.appendChild(row);
+                });
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showNotification('Lỗi khi tải danh sách admins', true);
+            });
+        }
+        
         function createKey() {
             if (!authToken) return;
             
             const hours = parseInt(document.getElementById('keyHours').value) || 24;
+            const permanent = document.getElementById('keyPermanent').checked;
+            const keyPrefix = document.getElementById('keyPrefix').value || 'key-';
             
             fetch(`${API_BASE}/admin/create-key`, {
                 method: 'POST',
@@ -495,13 +641,13 @@
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${authToken}`
                 },
-                body: JSON.stringify({ hours })
+                body: JSON.stringify({ hours, permanent, keyPrefix })
             })
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
                     document.getElementById('newKeyValue').textContent = `Key: ${data.key}`;
-                    document.getElementById('newKeyExpiry').textContent = `Hết hạn: ${new Date(data.expires).toLocaleString()}`;
+                    document.getElementById('newKeyExpiry').textContent = data.permanent ? 'Vĩnh viễn' : `Hết hạn: ${new Date(data.expires).toLocaleString()}`;
                     document.getElementById('createdKeyInfo').style.display = 'block';
                     showNotification('Key đã được tạo thành công');
                     loadKeys();
@@ -512,6 +658,42 @@
             .catch(error => {
                 console.error('Error:', error);
                 showNotification('Lỗi khi tạo key', true);
+            });
+        }
+        
+        function createAdmin() {
+            if (!authToken || !isSuperAdmin) return;
+            
+            const username = document.getElementById('newAdminUsername').value;
+            const password = document.getElementById('newAdminPassword').value;
+            
+            if (!username || !password) {
+                showNotification('Vui lòng nhập đầy đủ thông tin', true);
+                return;
+            }
+            
+            fetch(`${API_BASE}/admin/create-admin`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${authToken}`
+                },
+                body: JSON.stringify({ username, password })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showNotification('Admin đã được tạo thành công');
+                    loadAdmins();
+                    document.getElementById('newAdminUsername').value = '';
+                    document.getElementById('newAdminPassword').value = '';
+                } else {
+                    showNotification(data.error || 'Lỗi khi tạo admin', true);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showNotification('Lỗi khi tạo admin', true);
             });
         }
         
@@ -568,6 +750,32 @@
             .catch(error => {
                 console.error('Error:', error);
                 showNotification('Lỗi khi xóa key', true);
+            });
+        }
+        
+        function deleteAdmin(username) {
+            if (!authToken || !isSuperAdmin) return;
+            
+            if (!confirm(`Bạn có chắc chắn muốn xóa admin ${username}?`)) return;
+            
+            fetch(`${API_BASE}/admin/delete-admin/${username}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${authToken}`
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showNotification(`Đã xóa admin ${username}`);
+                    loadAdmins();
+                } else {
+                    showNotification(data.error || 'Lỗi khi xóa admin', true);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showNotification('Lỗi khi xóa admin', true);
             });
         }
         
@@ -678,6 +886,7 @@
         window.toggleBanUser = toggleBanUser;
         window.banAllUserKeys = banAllUserKeys;
         window.unbanAllUserKeys = unbanAllUserKeys;
+        window.deleteAdmin = deleteAdmin;
     </script>
 </body>
 </html>
