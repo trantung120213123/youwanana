@@ -4,506 +4,1191 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Panel - Key System</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* Same as original */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        :root {
+            --primary-color: #1a1a2e;
+            --secondary-color: #16213e;
+            --accent-color: #4cc9f0;
+            --text-color: #fff;
+            --danger-color: #e94560;
+            --success-color: #4caf50;
+            --warning-color: #ff9800;
+            --card-bg: #16213e;
+            --input-bg: #0f3460;
+            --border-color: #4cc9f0;
+        }
+        
+        body {
+            background-color: var(--primary-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background-color: var(--secondary-color);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, var(--accent-color) 0%, transparent 70%);
+            opacity: 0.1;
+            z-index: 0;
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 0;
+            color: var(--accent-color);
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            position: relative;
+            z-index: 1;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .header-controls {
+            display: flex;
+            gap: 10px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .btn {
+            background-color: var(--accent-color);
+            color: var(--secondary-color);
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        
+        .btn-danger {
+            background-color: var(--danger-color);
+            color: white;
+        }
+        
+        .btn-success {
+            background-color: var(--success-color);
+            color: white;
+        }
+        
+        .btn-warning {
+            background-color: var(--warning-color);
+            color: white;
+        }
+        
+        .login-form {
+            background-color: var(--card-bg);
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            max-width: 500px;
+            margin: 0 auto;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: var(--accent-color);
+        }
+        
+        input[type="text"],
+        input[type="password"],
+        input[type="number"],
+        input[type="email"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            background-color: var(--input-bg);
+            color: var(--text-color);
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+        
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(76, 201, 240, 0.3);
+        }
+        
+        .dashboard {
+            display: none;
+        }
+        
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+            background-color: var(--secondary-color);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .tab {
+            padding: 15px 20px;
+            cursor: pointer;
+            flex: 1;
+            text-align: center;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .tab::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            width: 0;
+            height: 3px;
+            background-color: var(--accent-color);
+            transition: all 0.3s;
+            transform: translateX(-50%);
+        }
+        
+        .tab:hover::after {
+            width: 80%;
+        }
+        
+        .tab.active {
+            background-color: var(--accent-color);
+            color: var(--secondary-color);
+            font-weight: bold;
+        }
+        
+        .tab.active::after {
+            width: 100%;
+            height: 3px;
+            background-color: var(--secondary-color);
+        }
+        
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.5s;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .card {
+            background-color: var(--card-bg);
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(90deg, var(--accent-color), var(--secondary-color));
+        }
+        
+        .card h2 {
+            margin-bottom: 20px;
+            color: var(--accent-color);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid var(--input-bg);
+        }
+        
+        th {
+            background-color: var(--input-bg);
+            color: var(--accent-color);
+            font-weight: bold;
+            position: sticky;
+            top: 0;
+        }
+        
+        tr:hover {
+            background-color: rgba(15, 52, 96, 0.3);
+        }
+        
+        .action-btn {
+            padding: 8px 12px;
+            margin-right: 5px;
+            border-radius: 4px;
+            font-size: 12px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+        
+        .status-badge {
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: bold;
+            display: inline-block;
+        }
+        
+        .status-active {
+            background-color: var(--success-color);
+            color: white;
+        }
+        
+        .status-expired {
+            background-color: var(--danger-color);
+            color: white;
+        }
+        
+        .status-banned {
+            background-color: var(--warning-color);
+            color: white;
+        }
+        
+        .form-inline {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .form-inline input {
+            flex: 1;
+        }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 5px;
+            background-color: var(--success-color);
+            color: white;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            display: none;
+            z-index: 1000;
+            animation: slideIn 0.3s;
+            max-width: 350px;
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateX(100px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        .notification.error {
+            background-color: var(--danger-color);
+        }
+        
+        .notification.warning {
+            background-color: var(--warning-color);
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+            padding: 15px;
+            background-color: var(--input-bg);
+            border-radius: 8px;
+        }
+        
+        .user-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: var(--accent-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            font-weight: bold;
+        }
+        
+        .user-details {
+            flex: 1;
+        }
+        
+        .user-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .stat-card {
+            background-color: var(--input-bg);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--accent-color);
+            margin: 10px 0;
+        }
+        
+        .stat-label {
+            font-size: 14px;
+            color: #aaa;
+        }
+        
         .modal {
+            display: none;
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.5);
-            display: none;
-            justify-content: center;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 2000;
             align-items: center;
-            z-index: 1000;
+            justify-content: center;
+            animation: fadeIn 0.3s;
         }
+        
         .modal-content {
-            background: #16213e;
-            padding: 20px;
+            background-color: var(--card-bg);
+            padding: 30px;
             border-radius: 10px;
-            max-width: 800px;
             width: 90%;
+            max-width: 600px;
             max-height: 80vh;
             overflow-y: auto;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            position: relative;
         }
+        
         .close-modal {
-            float: right;
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            font-size: 24px;
             cursor: pointer;
-            color: #e94560;
+            color: #aaa;
+            transition: color 0.3s;
         }
+        
+        .close-modal:hover {
+            color: var(--danger-color);
+        }
+        
+        .chat-container {
+            background-color: var(--card-bg);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            height: 400px;
+            display: flex;
+            flex-direction: column;
+        }
+        
         .chat-messages {
-            max-height: 400px;
+            flex: 1;
             overflow-y: auto;
             margin-bottom: 15px;
+            padding: 15px;
+            background-color: var(--input-bg);
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
         }
-        .message {
-            background: #0f3460;
-            padding: 10px;
-            border-radius: 5px;
-            margin-bottom: 10px;
+        
+        .chat-message {
+            padding: 10px 15px;
+            border-radius: 8px;
+            max-width: 80%;
+            position: relative;
         }
+        
+        .message-self {
+            background-color: var(--accent-color);
+            color: var(--secondary-color);
+            align-self: flex-end;
+        }
+        
+        .message-other {
+            background-color: var(--input-bg);
+            align-self: flex-start;
+        }
+        
         .message-sender {
             font-weight: bold;
-            color: #4cc9f0;
+            margin-bottom: 5px;
+            font-size: 14px;
         }
+        
         .message-time {
             font-size: 12px;
-            color: #ccc;
+            opacity: 0.7;
+            margin-top: 5px;
+        }
+        
+        .chat-input {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .chat-input input {
+            flex: 1;
+        }
+        
+        .activity-list {
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        
+        .activity-item {
+            padding: 15px;
+            margin-bottom: 10px;
+            background-color: var(--input-bg);
+            border-radius: 8px;
+            border-left: 4px solid var(--accent-color);
+        }
+        
+        .activity-admin {
+            font-weight: bold;
+            color: var(--accent-color);
+            margin-bottom: 5px;
+        }
+        
+        .activity-action {
+            margin-bottom: 5px;
+        }
+        
+        .activity-time {
+            font-size: 12px;
+            color: #aaa;
+        }
+        
+        .key-history {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .history-item {
+            padding: 12px;
+            margin-bottom: 10px;
+            background-color: var(--input-bg);
+            border-radius: 8px;
+            border-left: 4px solid var(--success-color);
+        }
+        
+        .history-key {
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: var(--accent-color);
+        }
+        
+        .history-action {
+            margin-bottom: 5px;
+        }
+        
+        .role-badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-left: 8px;
+        }
+        
+        .role-owner {
+            background-color: var(--warning-color);
+            color: black;
+        }
+        
+        .role-superadmin {
+            background-color: var(--accent-color);
+            color: var(--secondary-color);
+        }
+        
+        .role-admin {
+            background-color: var(--success-color);
+            color: white;
+        }
+        
+        @media (max-width: 768px) {
+            .tabs {
+                flex-direction: column;
+            }
+            
+            .form-inline {
+                flex-direction: column;
+            }
+            
+            .user-stats {
+                grid-template-columns: 1fr;
+            }
+            
+            table {
+                display: block;
+                overflow-x: auto;
+            }
+        }
+        
+        .loader {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: var(--accent-color);
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .search-box {
+            position: relative;
+            margin-bottom: 20px;
+        }
+        
+        .search-box i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #aaa;
+        }
+        
+        .search-box input {
+            padding-left: 40px;
+        }
+        
+        .pagination {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+            gap: 5px;
+        }
+        
+        .page-btn {
+            padding: 8px 12px;
+            background-color: var(--input-bg);
+            border: none;
+            border-radius: 4px;
+            color: var(--text-color);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .page-btn.active {
+            background-color: var(--accent-color);
+            color: var(--secondary-color);
+        }
+        
+        .page-btn:hover:not(.active) {
+            background-color: rgba(76, 201, 240, 0.2);
         }
     </style>
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>🔐 ADMIN PANEL - KEY SYSTEM</h1>
+            <h1><i class="fas fa-key"></i> ADMIN PANEL - KEY SYSTEM</h1>
             <div class="header-controls" id="headerControls" style="display: none;">
-                <button class="refresh-btn" id="refreshBtn">
-                    <span>🔄</span> Refresh
+                <span id="userRoleBadge" class="role-badge"></span>
+                <button class="btn" id="refreshBtn">
+                    <i class="fas fa-sync-alt"></i> Refresh
+                </button>
+                <button class="btn" id="backupBtn">
+                    <i class="fas fa-download"></i> Backup
+                </button>
+                <button class="btn btn-danger" id="logoutBtn">
+                    <i class="fas fa-sign-out-alt"></i> Logout
                 </button>
             </div>
         </header>
         
         <div class="login-form" id="loginForm">
-            <h2>Đăng nhập Admin</h2>
+            <h2><i class="fas fa-lock"></i> Đăng nhập Admin</h2>
             <div class="form-group">
-                <label for="username">Username:</label>
+                <label for="username"><i class="fas fa-user"></i> Username:</label>
                 <input type="text" id="username" placeholder="Nhập username">
             </div>
             <div class="form-group">
-                <label for="password">Password:</label>
+                <label for="password"><i class="fas fa-key"></i> Password:</label>
                 <input type="password" id="password" placeholder="Nhập password">
             </div>
-            <button id="loginBtn">Đăng nhập</button>
+            <button class="btn" id="loginBtn"><i class="fas fa-sign-in-alt"></i> Đăng nhập</button>
         </div>
         
-        <div class="dashboard" id="dashboard" style="display: none;">
+        <div class="dashboard" id="dashboard">
             <div class="tabs">
-                <div class="tab active" data-tab="keys">Quản lý Keys</div>
-                <div class="tab" data-tab="users">Quản lý Users</div>
-                <div class="tab" data-tab="create">Tạo Key</div>
-                <div class="tab" data-tab="chat">Chat Admins</div>
-                <div class="tab" data-tab="admins" id="adminsTabBtn" style="display: none;">Quản lý Admins</div>
-                <div class="tab" data-tab="settings" id="settingsTabBtn" style="display: none;">Cài đặt</div>
+                <div class="tab active" data-tab="keys"><i class="fas fa-key"></i> Quản lý Keys</div>
+                <div class="tab" data-tab="users"><i class="fas fa-users"></i> Quản lý Users</div>
+                <div class="tab" data-tab="create"><i class="fas fa-plus-circle"></i> Tạo Key</div>
+                <div class="tab" data-tab="admins" id="adminsTabBtn" style="display: none;"><i class="fas fa-user-shield"></i> Quản lý Admins</div>
+                <div class="tab" data-tab="activity" id="activityTabBtn" style="display: none;"><i class="fas fa-history"></i> Lịch sử hoạt động</div>
+                <div class="tab" data-tab="chat" id="chatTabBtn"><i class="fas fa-comments"></i> Chat Admin</div>
             </div>
             
             <div class="tab-content active" id="keysTab">
                 <div class="card">
-                    <h2>Danh sách Keys</h2>
-                    <div class="form-inline">
-                        <input type="text" id="searchKey" placeholder="Tìm kiếm key...">
-                        <button id="searchBtn">Tìm kiếm</button>
+                    <h2><i class="fas fa-key"></i> Danh sách Keys</h2>
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="searchKey" placeholder="Tìm kiếm key, user ID, username...">
                     </div>
-                    <table id="keysTable">
-                        <thead>
-                            <tr>
-                                <th>Key</th>
-                                <th>User ID</th>
-                                <th>Username</th>
-                                <th>HWID</th>
-                                <th>Ngày tạo</th>
-                                <th>Xác thực</th>
-                                <th>Hết hạn</th>
-                                <th>Trạng thái</th>
-                                <th>Hành động</th>
-                            </tr>
-                        </thead>
-                        <tbody id="keysList">
-                            <!-- Keys will be populated here -->
-                        </tbody>
-                    </table>
+                    <div class="table-responsive">
+                        <table id="keysTable">
+                            <thead>
+                                <tr>
+                                    <th>Key</th>
+                                    <th>User ID</th>
+                                    <th>Username</th>
+                                    <th>HWID</th>
+                                    <th>Ngày tạo</th>
+                                    <th>Hết hạn</th>
+                                    <th>Trạng thái</th>
+                                    <th>Hành động</th>
+                                </tr>
+                            </thead>
+                            <tbody id="keysList">
+                                <!-- Keys will be populated here -->
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="pagination" id="keysPagination">
+                        <!-- Pagination will be populated here -->
+                    </div>
                 </div>
             </div>
             
             <div class="tab-content" id="usersTab">
                 <div class="card">
-                    <h2>Danh sách Users</h2>
-                    <div class="form-inline">
-                        <input type="text" id="searchUser" placeholder="Tìm kiếm user...">
-                        <button id="searchUserBtn">Tìm kiếm</button>
+                    <h2><i class="fas fa-users"></i> Danh sách Users</h2>
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="searchUser" placeholder="Tìm kiếm user ID, username...">
                     </div>
-                    <table id="usersTable">
-                        <thead>
-                            <tr>
-                                <th>User ID</th>
-                                <th>Username</th>
-                                <th>Số key</th>
-                                <th>Lần cuối</th>
-                                <th>Hành động</th>
-                            </tr>
-                        </thead>
-                        <tbody id="usersList">
-                            <!-- Users will be populated here -->
-                        </tbody>
-                    </table>
+                    <div class="table-responsive">
+                        <table id="usersTable">
+                            <thead>
+                                <tr>
+                                    <th>User ID</th>
+                                    <th>Username</th>
+                                    <th>Số key</th>
+                                    <th>Lần cuối</th>
+                                    <th>Trạng thái</th>
+                                    <th>Hành động</th>
+                                </tr>
+                            </thead>
+                            <tbody id="usersList">
+                                <!-- Users will be populated here -->
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="pagination" id="usersPagination">
+                        <!-- Pagination will be populated here -->
+                    </div>
                 </div>
             </div>
             
             <div class="tab-content" id="createTab">
                 <div class="card">
-                    <h2>Tạo Key Mới</h2>
+                    <h2><i class="fas fa-plus-circle"></i> Tạo Key Mới</h2>
                     <div class="form-group">
-                        <label for="keyPrefix">Prefix cho key (mặc định: key-):</label>
-                        <input type="text" id="keyPrefix" value="key-">
+                        <label for="keyPrefix">Prefix cho key:</label>
+                        <input type="text" id="keyPrefix" value="key-" placeholder="Nhập prefix cho key">
                     </div>
                     <div class="form-group">
                         <label for="keyHours">Thời gian hiệu lực (giờ):</label>
                         <input type="number" id="keyHours" value="24" min="1">
                     </div>
                     <div class="form-group">
-                        <label for="keyPermanent">Key vĩnh viễn:</label>
-                        <input type="checkbox" id="keyPermanent">
+                        <label for="keyPermanent">
+                            <input type="checkbox" id="keyPermanent"> Key vĩnh viễn
+                        </label>
                     </div>
-                    <button id="createKeyBtn">Tạo Key</button>
+                    <button class="btn" id="createKeyBtn"><i class="fas fa-key"></i> Tạo Key</button>
                     <div id="createdKeyInfo" style="margin-top: 20px; display: none;">
-                        <h3>Key đã được tạo:</h3>
-                        <p id="newKeyValue"></p>
+                        <h3><i class="fas fa-check-circle"></i> Key đã được tạo:</h3>
+                        <p id="newKeyValue" style="word-break: break-all; padding: 10px; background-color: var(--input-bg); border-radius: 5px;"></p>
                         <p id="newKeyExpiry"></p>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="tab-content" id="chatTab">
-                <div class="card">
-                    <h2>Chat Admins</h2>
-                    <div class="chat-messages" id="chatMessages">
-                        <!-- Messages populated here -->
-                    </div>
-                    <div class="form-inline">
-                        <input type="text" id="chatInput" placeholder="Nhập tin nhắn...">
-                        <button id="sendChatBtn">Gửi</button>
                     </div>
                 </div>
             </div>
             
             <div class="tab-content" id="adminsTab">
                 <div class="card">
-                    <h2>Danh sách Admins</h2>
+                    <h2><i class="fas fa-user-shield"></i> Danh sách Admins</h2>
                     <div class="form-group">
-                        <label for="newAdminUsername">Username mới:</label>
+                        <label for="newAdminUsername"><i class="fas fa-user"></i> Username mới:</label>
                         <input type="text" id="newAdminUsername" placeholder="Nhập username mới">
                     </div>
                     <div class="form-group">
-                        <label for="newAdminPassword">Password mới:</label>
+                        <label for="newAdminPassword"><i class="fas fa-key"></i> Password mới:</label>
                         <input type="password" id="newAdminPassword" placeholder="Nhập password mới">
                     </div>
-                    <div class="form-group">
-                        <label for="newAdminRole">Role (0: Admin, 1: Super):</label>
-                        <select id="newAdminRole">
-                            <option value="0">Admin</option>
-                            <option value="1">Super Admin</option>
-                        </select>
+                    <button class="btn" id="createAdminBtn"><i class="fas fa-plus"></i> Tạo Admin</button>
+                    <div class="table-responsive">
+                        <table id="adminsTable">
+                            <thead>
+                                <tr>
+                                    <th>Username</th>
+                                    <th>Super Admin</th>
+                                    <th>Ngày tạo</th>
+                                    <th>Hành động</th>
+                                </tr>
+                            </thead>
+                            <tbody id="adminsList">
+                                <!-- Admins will be populated here -->
+                            </tbody>
+                        </table>
                     </div>
-                    <button id="createAdminBtn">Tạo Admin</button>
-                    <table id="adminsTable">
-                        <thead>
-                            <tr>
-                                <th>Username</th>
-                                <th>Role</th>
-                                <th>Ngày tạo</th>
-                                <th>Hành động</th>
-                            </tr>
-                        </thead>
-                        <tbody id="adminsList">
-                            <!-- Admins populated here -->
-                        </tbody>
-                    </table>
                 </div>
             </div>
             
-            <div class="tab-content" id="settingsTab">
+            <div class="tab-content" id="activityTab">
                 <div class="card">
-                    <h2>Cài đặt</h2>
-                    <div class="form-group">
-                        <label for="oldPassword">Password cũ:</label>
-                        <input type="password" id="oldPassword" placeholder="Nhập password cũ">
+                    <h2><i class="fas fa-history"></i> Lịch sử hoạt động Admin</h2>
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="searchActivity" placeholder="Tìm kiếm admin, hành động...">
                     </div>
-                    <div class="form-group">
-                        <label for="newPassword">Password mới:</label>
-                        <input type="password" id="newPassword" placeholder="Nhập password mới">
+                    <div class="activity-list" id="activityList">
+                        <!-- Activity logs will be populated here -->
                     </div>
-                    <button id="changePasswordBtn">Đổi Password</button>
+                    <div class="pagination" id="activityPagination">
+                        <!-- Pagination will be populated here -->
+                    </div>
                 </div>
             </div>
+            
+            <div class="tab-content" id="chatTab">
+                <div class="card">
+                    <h2><i class="fas fa-comments"></i> Chat Admin</h2>
+                    <div class="chat-container">
+                        <div class="chat-messages" id="chatMessages">
+                            <!-- Chat messages will be populated here -->
+                        </div>
+                        <div class="chat-input">
+                            <input type="text" id="chatInput" placeholder="Nhập tin nhắn...">
+                            <button class="btn" id="sendChatBtn"><i class="fas fa-paper-plane"></i> Gửi</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- User Detail Modal -->
+    <div class="modal" id="userDetailModal">
+        <div class="modal-content">
+            <span class="close-modal" id="closeUserModal">&times;</span>
+            <h2><i class="fas fa-user"></i> Thông tin User</h2>
+            <div id="userDetailContent">
+                <!-- User details will be populated here -->
+            </div>
+            <button class="btn" id="viewKeyHistoryBtn"><i class="fas fa-history"></i> Xem lịch sử key</button>
+        </div>
+    </div>
+    
+    <!-- Key History Modal -->
+    <div class="modal" id="keyHistoryModal">
+        <div class="modal-content">
+            <span class="close-modal" id="closeKeyHistoryModal">&times;</span>
+            <h2><i class="fas fa-history"></i> Lịch sử Key</h2>
+            <div class="key-history" id="keyHistoryContent">
+                <!-- Key history will be populated here -->
+            </div>
+        </div>
+    </div>
+    
+    <!-- Key Edit Modal -->
+    <div class="modal" id="keyEditModal">
+        <div class="modal-content">
+            <span class="close-modal" id="closeKeyEditModal">&times;</span>
+            <h2><i class="fas fa-edit"></i> Chỉnh sửa Key</h2>
+            <div class="form-group">
+                <label for="editKeyHours">Thời gian mới (giờ):</label>
+                <input type="number" id="editKeyHours" min="1">
+            </div>
+            <div class="form-group">
+                <label for="editKeyPermanent">
+                    <input type="checkbox" id="editKeyPermanent"> Đặt vĩnh viễn
+                </label>
+            </div>
+            <button class="btn" id="saveKeyEditBtn"><i class="fas fa-save"></i> Lưu thay đổi</button>
         </div>
     </div>
     
     <div class="notification" id="notification"></div>
     
-    <!-- Modal for user history -->
-    <div class="modal" id="userHistoryModal">
-        <div class="modal-content">
-            <span class="close-modal" onclick="closeModal('userHistoryModal')">×</span>
-            <h2>Lịch sử Key của User</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Key</th>
-                        <th>Ngày tạo</th>
-                        <th>Ngày xác thực</th>
-                        <th>Hết hạn</th>
-                        <th>Trạng thái</th>
-                    </tr>
-                </thead>
-                <tbody id="userHistoryList"></tbody>
-            </table>
-        </div>
-    </div>
-    
-    <!-- Modal for admin logs -->
-    <div class="modal" id="adminLogsModal">
-        <div class="modal-content">
-            <span class="close-modal" onclick="closeModal('adminLogsModal')">×</span>
-            <h2>Lịch sử Hoạt động của Admin</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Action</th>
-                        <th>Target</th>
-                        <th>Details</th>
-                        <th>Timestamp</th>
-                    </tr>
-                </thead>
-                <tbody id="adminLogsList"></tbody>
-            </table>
-        </div>
-    </div>
-    
     <script>
-        const API_BASE = "https://serverluexreal.onrender.com";
+        const API_BASE = 'https://serverluexreal.onrender.com'; // Thay bằng URL server thực tế
         let authToken = '';
-        let userRole = 0; // 0: admin, 1: super, 2: owner
+        let currentUsername = '';
+        let isSuperAdmin = false;
+        let isOwner = false;
+        let currentPage = { keys: 1, users: 1, activity: 1 };
+        const itemsPerPage = 20;
+        let currentEditKey = '';
+        let currentUserId = '';
+        let lastChatId = 0;
         
-        document.getElementById('loginBtn').addEventListener('click', login);
-        document.getElementById('refreshBtn').addEventListener('click', refreshAll);
-        document.querySelectorAll('.tab').forEach(tab => {
-            tab.addEventListener('click', () => switchTab(tab.dataset.tab));
-        });
-        
-        document.getElementById('searchBtn').addEventListener('click', loadKeys);
-        document.getElementById('searchUserBtn').addEventListener('click', loadUsers);
-        document.getElementById('createKeyBtn').addEventListener('click', createKey);
-        document.getElementById('createAdminBtn').addEventListener('click', createAdmin);
-        document.getElementById('sendChatBtn').addEventListener('click', sendChatMessage);
-        document.getElementById('changePasswordBtn').addEventListener('click', changePassword);
-        
-        function login() {
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
-            
-            if (!username || !password) {
-                showNotification('Vui lòng nhập đầy đủ thông tin', true);
-                return;
-            }
-            
-            fetch(`${API_BASE}/admin/login`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ username, password })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    authToken = data.token;
-                    userRole = data.role;
-                    document.getElementById('loginForm').style.display = 'none';
-                    document.getElementById('dashboard').style.display = 'block';
-                    document.getElementById('headerControls').style.display = 'flex';
-                    document.getElementById('settingsTabBtn').style.display = 'block';
-                    if (userRole >= 1) {
-                        document.getElementById('adminsTabBtn').style.display = 'block';
-                    }
-                    showNotification('Đăng nhập thành công');
-                    refreshAll();
-                } else {
-                    showNotification('Sai thông tin đăng nhập', true);
-                }
-            })
-            .catch(error => showNotification('Lỗi kết nối', true));
+        function showNotification(message, error = false) {
+            const notif = document.getElementById('notification');
+            notif.textContent = message;
+            notif.classList.toggle('error', error);
+            notif.style.display = 'block';
+            setTimeout(() => notif.style.display = 'none', 3000);
         }
         
-        function refreshAll() {
-            if (!authToken) return;
-            
-            showNotification('Đang làm mới dữ liệu...');
-            loadKeys();
-            loadUsers();
-            if (userRole >= 1) loadAdmins();
-            if (document.querySelector('.tab.active').dataset.tab === 'chat') loadChatMessages();
-            setTimeout(() => showNotification('Đã làm mới tất cả dữ liệu'), 500);
+        function showLoader(buttonId, text) {
+            const btn = document.getElementById(buttonId);
+            btn.innerHTML = `<span class="loader"></span> ${text}`;
+            btn.disabled = true;
+        }
+        
+        function removeLoader(buttonId, text) {
+            const btn = document.getElementById(buttonId);
+            btn.innerHTML = text;
+            btn.disabled = false;
+        }
+        
+        function debounce(func, delay) {
+            let timer;
+            return (...args) => {
+                clearTimeout(timer);
+                timer = setTimeout(() => func(...args), delay);
+            };
+        }
+        
+        function formatDate(dateStr) {
+            if (!dateStr) return 'Vĩnh viễn';
+            const date = new Date(dateStr);
+            return date.toLocaleString('vi-VN');
+        }
+        
+        function getStatusBadge(key) {
+            if (key.banned) return '<span class="status-badge status-banned">Banned</span>';
+            if (key.permanent) return '<span class="status-badge status-active">Permanent</span>';
+            if (new Date(key.expires_at) < new Date()) return '<span class="status-badge status-expired">Expired</span>';
+            if (key.used) return '<span class="status-badge status-active">Used</span>';
+            return '<span class="status-badge status-warning">Unused</span>';
+        }
+        
+        function getUserStatusBadge(user) {
+            return user.banned ? '<span class="status-badge status-banned">Banned</span>' : '<span class="status-badge status-active">Active</span>';
         }
         
         function switchTab(tabName) {
-            if ((tabName === 'admins' && userRole < 1) || (tabName === 'settings' && userRole < 0)) return;
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
             
-            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
-            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
-            
-            document.querySelector(`.tab[data-tab="${tabName}"]`).classList.add('active');
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
             document.getElementById(`${tabName}Tab`).classList.add('active');
             
+            if (tabName === 'keys') loadKeys();
+            if (tabName === 'users') loadUsers();
+            if (tabName === 'admins') loadAdmins();
+            if (tabName === 'activity') loadAdminActivity();
             if (tabName === 'chat') loadChatMessages();
         }
         
-        function loadKeys() {
-            if (!authToken) return;
+        function createPagination(paginationId, totalItems, currentPage, loadFunc) {
+            const pagination = document.getElementById(paginationId);
+            pagination.innerHTML = '';
+            const totalPages = Math.ceil(totalItems / itemsPerPage);
             
-            const searchKey = document.getElementById('searchKey').value;
+            for (let i = 1; i <= totalPages; i++) {
+                const btn = document.createElement('button');
+                btn.className = 'page-btn';
+                btn.textContent = i;
+                if (i === currentPage) btn.classList.add('active');
+                btn.addEventListener('click', () => {
+                    currentPage = i;
+                    loadFunc();
+                });
+                pagination.appendChild(btn);
+            }
+        }
+        
+        function loadKeys() {
+            const search = document.getElementById('searchKey').value.toLowerCase();
             fetch(`${API_BASE}/admin/keys`, {
                 headers: { 'Authorization': `Bearer ${authToken}` }
             })
-            .then(response => response.json())
+            .then(res => res.json())
             .then(keys => {
-                const keysList = document.getElementById('keysList');
-                keysList.innerHTML = '';
+                let filtered = keys.filter(k => 
+                    k.key.toLowerCase().includes(search) ||
+                    (k.user_id && k.user_id.toLowerCase().includes(search)) ||
+                    (k.username && k.username.toLowerCase().includes(search))
+                );
                 
-                if (keys.error) {
-                    showNotification(keys.error, true);
-                    return;
-                }
+                const total = filtered.length;
+                const start = (currentPage.keys - 1) * itemsPerPage;
+                filtered = filtered.slice(start, start + itemsPerPage);
                 
-                if (searchKey) {
-                    keys = keys.filter(key => 
-                        key.key.includes(searchKey) || 
-                        (key.user_id && key.user_id.includes(searchKey)) ||
-                        (key.username && key.username.includes(searchKey))
-                    );
-                }
-                
-                keys.forEach(key => {
-                    const row = document.createElement('tr');
-                    let statusClass = '';
-                    let statusText = '';
-                    
-                    const now = new Date();
-                    const expiresAt = key.expires_at ? new Date(key.expires_at) : null;
-                    
-                    if (key.banned) {
-                        statusClass = 'status-banned';
-                        statusText = 'BANNED';
-                    } else if (expiresAt && now > expiresAt && !key.permanent) {
-                        statusClass = 'status-expired';
-                        statusText = 'EXPIRED';
-                    } else if (key.used) {
-                        statusClass = 'status-active';
-                        statusText = 'ACTIVE';
-                    } else {
-                        statusClass = 'status-active';
-                        statusText = 'UNUSED';
-                    }
-                    
-                    row.innerHTML = `
+                const tbody = document.getElementById('keysList');
+                tbody.innerHTML = '';
+                filtered.forEach(key => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
                         <td>${key.key}</td>
-                        <td>${key.user_id || 'N/A'}</td>
-                        <td>${key.username || 'N/A'}</td>
-                        <td>${key.hwid || 'N/A'}</td>
-                        <td>${new Date(key.created_at).toLocaleString()}</td>
-                        <td>${key.verified_at ? new Date(key.verified_at).toLocaleString() : 'N/A'}</td>
-                        <td>${key.permanent ? 'Vĩnh viễn' : (key.expires_at ? new Date(key.expires_at).toLocaleString() : 'N/A')}</td>
-                        <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+                        <td>${key.user_id || '-'}</td>
+                        <td>${key.username || '-'}</td>
+                        <td>${key.hwid || '-'}</td>
+                        <td>${formatDate(key.created_at)}</td>
+                        <td>${formatDate(key.expires_at)}</td>
+                        <td>${getStatusBadge(key)}</td>
                         <td>
-                            ${key.user_id ? `
-                                <button class="action-btn ${key.banned ? 'btn-success' : 'btn-danger'}" onclick="toggleBanUser('${key.user_id}', ${!key.banned})">
-                                    ${key.banned ? 'UNBAN' : 'BAN'}
-                                </button>
-                            ` : ''}
-                            <button class="action-btn btn-warning" onclick="updateKeyExpiry('${key.key}')">Sửa TG</button>
-                            <button class="action-btn btn-danger" onclick="deleteKey('${key.key}')">Xóa</button>
+                            <button class="action-btn btn-warning" onclick="editKeyExpiry('${key.key}')"><i class="fas fa-edit"></i> Edit Expiry</button>
+                            <button class="action-btn btn-danger" onclick="deleteKey('${key.key}')"><i class="fas fa-trash"></i> Delete</button>
                         </td>
                     `;
-                    keysList.appendChild(row);
+                    tbody.appendChild(tr);
                 });
+                
+                createPagination('keysPagination', total, currentPage.keys, loadKeys);
             })
-            .catch(error => showNotification('Lỗi khi tải danh sách keys', true));
+            .catch(err => showNotification('Lỗi tải keys', true));
         }
         
         function loadUsers() {
-            if (!authToken) return;
-            
-            const searchUser = document.getElementById('searchUser').value;
+            const search = document.getElementById('searchUser').value.toLowerCase();
             fetch(`${API_BASE}/admin/users`, {
                 headers: { 'Authorization': `Bearer ${authToken}` }
             })
-            .then(response => response.json())
+            .then(res => res.json())
             .then(users => {
-                const usersList = document.getElementById('usersList');
-                usersList.innerHTML = '';
+                let filtered = users.filter(u => 
+                    u.user_id.toLowerCase().includes(search) ||
+                    u.username.toLowerCase().includes(search)
+                );
                 
-                if (users.error) {
-                    showNotification(users.error, true);
-                    return;
-                }
+                const total = filtered.length;
+                const start = (currentPage.users - 1) * itemsPerPage;
+                filtered = filtered.slice(start, start + itemsPerPage);
                 
-                if (searchUser) {
-                    users = users.filter(user => 
-                        user.user_id.includes(searchUser) || 
-                        (user.username && user.username.includes(searchUser))
-                    );
-                }
-                
-                users.forEach(user => {
-                    const row = document.createElement('tr');
-                    row.innerHTML = `
-                        <td><a href="#" onclick="showUserHistory('${user.user_id}')">${user.user_id}</a></td>
-                        <td><a href="#" onclick="showUserHistory('${user.user_id}')">${user.username || 'N/A'}</a></td>
+                const tbody = document.getElementById('usersList');
+                tbody.innerHTML = '';
+                filtered.forEach(user => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${user.user_id}</td>
+                        <td>${user.username}</td>
                         <td>${user.total_keys_used}</td>
-                        <td>${new Date(user.last_seen).toLocaleString()}</td>
+                        <td>${formatDate(user.last_seen)}</td>
+                        <td>${getUserStatusBadge(user)}</td>
                         <td>
-                            <button class="action-btn btn-danger" onclick="banAllUserKeys('${user.user_id}')">BAN ALL</button>
-                            <button class="action-btn btn-success" onclick="unbanAllUserKeys('${user.user_id}')">UNBAN ALL</button>
+                            <button class="action-btn btn-success" onclick="viewUserDetail('${user.user_id}')"><i class="fas fa-eye"></i> View</button>
+                            ${user.banned ? 
+                                `<button class="action-btn btn-warning" onclick="unbanUser('${user.user_id}')"><i class="fas fa-unlock"></i> Unban</button>` :
+                                `<button class="action-btn btn-danger" onclick="banUser('${user.user_id}')"><i class="fas fa-ban"></i> Ban</button>`
+                            }
                         </td>
                     `;
-                    usersList.appendChild(row);
+                    tbody.appendChild(tr);
                 });
+                
+                createPagination('usersPagination', total, currentPage.users, loadUsers);
             })
-            .catch(error => showNotification('Lỗi khi tải danh sách users', true));
+            .catch(err => showNotification('Lỗi tải users', true));
         }
         
         function loadAdmins() {
-            if (!authToken || userRole < 1) return;
-            
             fetch(`${API_BASE}/admin/admins`, {
                 headers: { 'Authorization': `Bearer ${authToken}` }
             })
-            .then(response => response.json())
+            .then(res => res.json())
             .then(admins => {
-                const adminsList = document.getElementById('adminsList');
-                adminsList.innerHTML = '';
-                
-                if (admins.error) {
-                    showNotification(admins.error, true);
-                    return;
-                }
-                
+                const tbody = document.getElementById('adminsList');
+                tbody.innerHTML = '';
                 admins.forEach(admin => {
-                    const row = document.createElement('tr');
-                    const roleText = admin.role === 2 ? 'Owner' : admin.role === 1 ? 'Super Admin' : 'Admin';
-                    row.innerHTML = `
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
                         <td>${admin.username}</td>
-                        <td>${roleText}</td>
-                        <td>${new Date(admin.created_at).toLocaleString()}</td>
+                        <td>${admin.is_super_admin ? '<span class="status-badge status-active">Yes</span>' : '<span class="status-badge status-expired">No</span>'}</td>
+                        <td>${formatDate(admin.created_at)}</td>
                         <td>
-                            ${admin.role < userRole ? `<button class="action-btn btn-danger" onclick="deleteAdmin('${admin.username}')">Xóa</button>` : ''}
-                            ${userRole === 2 && admin.role < 2 ? `
-                                <button class="action-btn btn-success" onclick="updateAdminRole('${admin.username}', ${admin.role === 1 ? 0 : 1})">
-                                    ${admin.role === 1 ? 'Demote' : 'Promote'}
-                                </button>
-                                <button class="action-btn btn-warning" onclick="showAdminLogs('${admin.username}')">Logs</button>
-                            ` : ''}
+                            <button class="action-btn btn-warning" onclick="toggleSuperAdmin('${admin.username}', ${admin.is_super_admin})"><i class="fas fa-user-edit"></i> Toggle Super</button>
+                            <button class="action-btn btn-danger" onclick="deleteAdmin('${admin.username}')"><i class="fas fa-trash"></i> Delete</button>
                         </td>
                     `;
-                    adminsList.appendChild(row);
+                    tbody.appendChild(tr);
                 });
             })
-            .catch(error => showNotification('Lỗi khi tải danh sách admins', true));
+            .catch(err => showNotification('Lỗi tải admins', true));
+        }
+        
+        function loadAdminActivity() {
+            const search = document.getElementById('searchActivity').value.toLowerCase();
+            fetch(`${API_BASE}/admin/activity?limit=500`, {
+                headers: { 'Authorization': `Bearer ${authToken}` }
+            })
+            .then(res => res.json())
+            .then(activities => {
+                let filtered = activities.filter(a => 
+                    a.admin_username.toLowerCase().includes(search) ||
+                    a.action.toLowerCase().includes(search) ||
+                    (a.details && a.details.toLowerCase().includes(search))
+                );
+                
+                const total = filtered.length;
+                const start = (currentPage.activity - 1) * itemsPerPage;
+                filtered = filtered.slice(start, start + itemsPerPage);
+                
+                const list = document.getElementById('activityList');
+                list.innerHTML = '';
+                filtered.forEach(activity => {
+                    const div = document.createElement('div');
+                    div.className = 'activity-item';
+                    div.innerHTML = `
+                        <div class="activity-admin">${activity.admin_username}</div>
+                        <div class="activity-action">${activity.action} ${activity.target_type ? `on ${activity.target_type} ${activity.target_value}` : ''}</div>
+                        <div>${activity.details || ''}</div>
+                        <div class="activity-time">${formatDate(activity.created_at)}</div>
+                    `;
+                    list.appendChild(div);
+                });
+                
+                createPagination('activityPagination', total, currentPage.activity, loadAdminActivity);
+            })
+            .catch(err => showNotification('Lỗi tải activity', true));
+        }
+        
+        function loadChatMessages() {
+            fetch(`${API_BASE}/admin/chat?limit=100`, {
+                headers: { 'Authorization': `Bearer ${authToken}` }
+            })
+            .then(res => res.json())
+            .then(messages => {
+                const chat = document.getElementById('chatMessages');
+                chat.innerHTML = '';
+                messages.forEach(msg => {
+                    const div = document.createElement('div');
+                    div.className = 'chat-message ' + (msg.admin_username === currentUsername ? 'message-self' : 'message-other');
+                    div.innerHTML = `
+                        <div class="message-sender">${msg.admin_username}</div>
+                        <div>${msg.message}</div>
+                        <div class="message-time">${formatDate(msg.created_at)}</div>
+                    `;
+                    chat.appendChild(div);
+                });
+                chat.scrollTop = chat.scrollHeight;
+                if (messages.length > 0) lastChatId = messages[0].id;
+            })
+            .catch(err => showNotification('Lỗi tải chat', true));
+        }
+        
+        function sendChatMessage() {
+            const input = document.getElementById('chatInput');
+            const message = input.value.trim();
+            if (!message) return;
+            
+            showLoader('sendChatBtn', 'Đang gửi...');
+            
+            fetch(`${API_BASE}/admin/chat`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${authToken}`
+                },
+                body: JSON.stringify({ username: currentUsername, message })
+            })
+            .then(res => res.json())
+            .then(data => {
+                removeLoader('sendChatBtn', 'Gửi');
+                if (data.success) {
+                    input.value = '';
+                    loadChatMessages();
+                } else {
+                    showNotification('Lỗi gửi tin nhắn', true);
+                }
+            })
+            .catch(err => {
+                removeLoader('sendChatBtn', 'Gửi');
+                showNotification('Lỗi gửi tin nhắn', true);
+            });
         }
         
         function createKey() {
-            if (!authToken) return;
-            
-            const hours = parseInt(document.getElementById('keyHours').value) || 24;
+            const prefix = document.getElementById('keyPrefix').value;
+            const hours = document.getElementById('keyHours').value;
             const permanent = document.getElementById('keyPermanent').checked;
-            const keyPrefix = document.getElementById('keyPrefix').value || 'key-';
+            
+            showLoader('createKeyBtn', 'Đang tạo...');
             
             fetch(`${API_BASE}/admin/create-key`, {
                 method: 'POST',
@@ -511,72 +1196,37 @@
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${authToken}`
                 },
-                body: JSON.stringify({ hours, permanent, keyPrefix })
+                body: JSON.stringify({ hours, permanent, keyPrefix, admin_username: currentUsername })
             })
-            .then(response => response.json())
+            .then(res => res.json())
             .then(data => {
+                removeLoader('createKeyBtn', 'Tạo Key');
                 if (data.success) {
-                    document.getElementById('newKeyValue').textContent = `Key: ${data.key}`;
-                    document.getElementById('newKeyExpiry').textContent = data.permanent ? 'Vĩnh viễn' : `Hết hạn: ${new Date(data.expires).toLocaleString()}`;
+                    document.getElementById('newKeyValue').textContent = data.key;
+                    document.getElementById('newKeyExpiry').textContent = `Hết hạn: ${data.permanent ? 'Vĩnh viễn' : data.expires}`;
                     document.getElementById('createdKeyInfo').style.display = 'block';
-                    showNotification('Key đã được tạo thành công');
+                    showNotification('Tạo key thành công');
                     loadKeys();
                 } else {
-                    showNotification(data.error || 'Lỗi khi tạo key', true);
+                    showNotification(data.error || 'Lỗi tạo key', true);
                 }
             })
-            .catch(error => showNotification('Lỗi khi tạo key', true));
+            .catch(err => {
+                removeLoader('createKeyBtn', 'Tạo Key');
+                showNotification('Lỗi tạo key', true);
+            });
         }
         
-        function createAdmin() {
-            if (!authToken || userRole < 1) return;
-            
-            const username = document.getElementById('newAdminUsername').value;
-            const password = document.getElementById('newAdminPassword').value;
-            const role = parseInt(document.getElementById('newAdminRole').value);
-            
-            if (!username || !password) {
-                showNotification('Vui lòng nhập đầy đủ thông tin', true);
-                return;
-            }
-            
-            fetch(`${API_BASE}/admin/create-admin`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${authToken}`
-                },
-                body: JSON.stringify({ username, password, role })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    showNotification('Admin đã được tạo thành công');
-                    loadAdmins();
-                    document.getElementById('newAdminUsername').value = '';
-                    document.getElementById('newAdminPassword').value = '';
-                } else {
-                    showNotification(data.error || 'Lỗi khi tạo admin', true);
-                }
-            })
-            .catch(error => showNotification('Lỗi khi tạo admin', true));
+        function editKeyExpiry(key) {
+            currentEditKey = key;
+            document.getElementById('keyEditModal').style.display = 'flex';
         }
         
-        function updateKeyExpiry(key) {
-            if (!authToken) return;
+        document.getElementById('saveKeyEditBtn').addEventListener('click', () => {
+            const hours = document.getElementById('editKeyHours').value;
+            const permanent = document.getElementById('editKeyPermanent').checked;
             
-            const input = prompt(`Nhập số giờ mới cho key ${key} (hoặc "permanent" cho vĩnh viễn):`, "24");
-            
-            if (input === null) return;
-            
-            let body;
-            if (input.toLowerCase() === 'permanent') {
-                body = { key, permanent: true };
-            } else {
-                const hours = parseInt(input);
-                if (isNaN(hours)) return showNotification('Input không hợp lệ', true);
-                body = { key, hours };
-            }
+            showLoader('saveKeyEditBtn', 'Đang lưu...');
             
             fetch(`${API_BASE}/admin/update-key-expiry`, {
                 method: 'POST',
@@ -584,66 +1234,205 @@
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${authToken}`
                 },
-                body: JSON.stringify(body)
+                body: JSON.stringify({ key: currentEditKey, hours, permanent, admin_username: currentUsername })
             })
-            .then(response => response.json())
+            .then(res => res.json())
             .then(data => {
+                removeLoader('saveKeyEditBtn', 'Lưu thay đổi');
                 if (data.success) {
-                    showNotification(`Đã cập nhật key ${key}`);
+                    document.getElementById('keyEditModal').style.display = 'none';
+                    showNotification('Cập nhật key thành công');
                     loadKeys();
                 } else {
-                    showNotification(data.error || 'Lỗi khi cập nhật key', true);
+                    showNotification(data.error || 'Lỗi cập nhật key', true);
                 }
             })
-            .catch(error => showNotification('Lỗi khi cập nhật key', true));
-        }
+            .catch(err => {
+                removeLoader('saveKeyEditBtn', 'Lưu thay đổi');
+                showNotification('Lỗi cập nhật key', true);
+            });
+        });
+        
+        document.getElementById('closeKeyEditModal').addEventListener('click', () => {
+            document.getElementById('keyEditModal').style.display = 'none';
+        });
         
         function deleteKey(key) {
-            if (!authToken) return;
+            if (!confirm('Xác nhận xóa key?')) return;
             
-            if (!confirm(`Bạn có chắc chắn muốn xóa key ${key}?`)) return;
-            
-            fetch(`${API_BASE}/admin/delete-key/${key}`, {
+            fetch(`${API_BASE}/admin/delete-key/${key}?admin_username=${currentUsername}`, {
                 method: 'DELETE',
                 headers: { 'Authorization': `Bearer ${authToken}` }
             })
-            .then(response => response.json())
+            .then(res => res.json())
             .then(data => {
                 if (data.success) {
-                    showNotification(`Đã xóa key ${key}`);
+                    showNotification('Xóa key thành công');
                     loadKeys();
                 } else {
-                    showNotification(data.error || 'Lỗi khi xóa key', true);
+                    showNotification(data.error || 'Lỗi xóa key', true);
                 }
             })
-            .catch(error => showNotification('Lỗi khi xóa key', true));
+            .catch(err => showNotification('Lỗi xóa key', true));
         }
         
-        function deleteAdmin(username) {
-            if (!authToken) return;
-            
-            if (!confirm(`Bạn có chắc chắn muốn xóa admin ${username}?`)) return;
-            
-            fetch(`${API_BASE}/admin/delete-admin/${username}`, {
-                method: 'DELETE',
+        function viewUserDetail(userId) {
+            currentUserId = userId;
+            fetch(`${API_BASE}/admin/users`, {
                 headers: { 'Authorization': `Bearer ${authToken}` }
             })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    showNotification(`Đã xóa admin ${username}`);
-                    loadAdmins();
-                } else {
-                    showNotification(data.error || 'Lỗi khi xóa admin', true);
-                }
+            .then(res => res.json())
+            .then(users => {
+                const user = users.find(u => u.user_id === userId);
+                if (!user) return;
+                
+                const content = document.getElementById('userDetailContent');
+                content.innerHTML = `
+                    <div class="user-info">
+                        <div class="user-avatar">${user.username[0].toUpperCase()}</div>
+                        <div class="user-details">
+                            <h3>${user.username}</h3>
+                            <p>ID: ${user.user_id}</p>
+                        </div>
+                    </div>
+                    <div class="user-stats">
+                        <div class="stat-card">
+                            <div class="stat-value">${user.total_keys_used}</div>
+                            <div class="stat-label">Tổng keys</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">${formatDate(user.first_seen)}</div>
+                            <div class="stat-label">Lần đầu</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">${formatDate(user.last_seen)}</div>
+                            <div class="stat-label">Lần cuối</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">${user.banned ? 'Banned' : 'Active'}</div>
+                            <div class="stat-label">Trạng thái</div>
+                        </div>
+                    </div>
+                `;
+                document.getElementById('userDetailModal').style.display = 'flex';
             })
-            .catch(error => showNotification('Lỗi khi xóa admin', true));
+            .catch(err => showNotification('Lỗi tải thông tin user', true));
         }
         
-        function updateAdminRole(username, newRole) {
-            if (!authToken || userRole !== 2) return;
+        document.getElementById('viewKeyHistoryBtn').addEventListener('click', () => {
+            document.getElementById('userDetailModal').style.display = 'none';
+            fetch(`${API_BASE}/admin/user-key-history/${currentUserId}?limit=100`, {
+                headers: { 'Authorization': `Bearer ${authToken}` }
+            })
+            .then(res => res.json())
+            .then(history => {
+                const content = document.getElementById('keyHistoryContent');
+                content.innerHTML = '';
+                history.forEach(item => {
+                    const div = document.createElement('div');
+                    div.className = 'history-item';
+                    div.innerHTML = `
+                        <div class="history-key">${item.key}</div>
+                        <div class="history-action">${item.action}: ${item.details || ''}</div>
+                        <div class="activity-time">${formatDate(item.created_at)}</div>
+                    `;
+                    content.appendChild(div);
+                });
+                document.getElementById('keyHistoryModal').style.display = 'flex';
+            })
+            .catch(err => showNotification('Lỗi tải lịch sử key', true));
+        });
+        
+        function banUser(userId) {
+            if (!confirm('Xác nhận ban user?')) return;
             
-            if (!confirm(`Bạn có chắc chắn muốn thay đổi role của ${username}?`)) return;
+            fetch(`${API_BASE}/admin/ban-user`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${authToken}`
+                },
+                body: JSON.stringify({ user_id: userId, admin_username: currentUsername })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    showNotification('Ban user thành công');
+                    loadUsers();
+                } else {
+                    showNotification(data.error || 'Lỗi ban user', true);
+                }
+            })
+            .catch(err => showNotification('Lỗi ban user', true));
+        }
+        
+        function unbanUser(userId) {
+            if (!confirm('Xác nhận unban user?')) return;
+            
+            fetch(`${API_BASE}/admin/unban-user`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${authToken}`
+                },
+                body: JSON.stringify({ user_id: userId, admin_username: currentUsername })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    showNotification('Unban user thành công');
+                    loadUsers();
+                } else {
+                    showNotification(data.error || 'Lỗi unban user', true);
+                }
+            })
+            .catch(err => showNotification('Lỗi unban user', true));
+        }
+        
+        function createAdmin() {
+            const username = document.getElementById('newAdminUsername').value;
+            const password = document.getElementById('newAdminPassword').value;
+            
+            if (!username || !password) {
+                showNotification('Thiếu thông tin', true);
+                return;
+            }
+            
+            showLoader('createAdminBtn', 'Đang tạo...');
+            
+            fetch(`${API_BASE}/admin/create-admin`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${authToken}`
+                },
+                body: JSON.stringify({ username, password, admin_username: currentUsername })
+            })
+            .then(res => res.json())
+            .then(data => {
+                removeLoader('createAdminBtn', 'Tạo Admin');
+                if (data.success) {
+                    document.getElementById('newAdminUsername').value = '';
+                    document.getElementById('newAdminPassword').value = '';
+                    showNotification('Tạo admin thành công');
+                    loadAdmins();
+                } else {
+                    showNotification(data.error || 'Lỗi tạo admin', true);
+                }
+            })
+            .catch(err => {
+                removeLoader('createAdminBtn', 'Tạo Admin');
+                showNotification('Lỗi tạo admin', true);
+            });
+        }
+        
+        function toggleSuperAdmin(username, currentSuper) {
+            if (!isOwner) {
+                showNotification('Chỉ owner mới có quyền này', true);
+                return;
+            }
+            
+            if (!confirm(`Xác nhận ${currentSuper ? 'hạ' : 'thăng'} cấp super admin cho ${username}?`)) return;
             
             fetch(`${API_BASE}/admin/update-admin-role`, {
                 method: 'POST',
@@ -651,212 +1440,197 @@
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${authToken}`
                 },
-                body: JSON.stringify({ username, new_role: newRole })
+                body: JSON.stringify({ username, is_super_admin: !currentSuper, admin_username: currentUsername })
             })
-            .then(response => response.json())
+            .then(res => res.json())
             .then(data => {
                 if (data.success) {
-                    showNotification(`Đã cập nhật role của ${username}`);
+                    showNotification('Cập nhật vai trò thành công');
                     loadAdmins();
                 } else {
-                    showNotification(data.error || 'Lỗi khi cập nhật role', true);
+                    showNotification(data.error || 'Lỗi cập nhật vai trò', true);
                 }
             })
-            .catch(error => showNotification('Lỗi khi cập nhật role', true));
+            .catch(err => showNotification('Lỗi cập nhật vai trò', true));
         }
         
-        function toggleBanUser(userId, ban) {
-            if (!authToken) return;
-            
-            const endpoint = ban ? 'ban-user' : 'unban-user';
-            const action = ban ? 'ban' : 'unban';
-            
-            if (!confirm(`Bạn có chắc chắn muốn ${action} user ${userId}?`)) return;
-            
-            fetch(`${API_BASE}/admin/${endpoint}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${authToken}`
-                },
-                body: JSON.stringify({ user_id: userId })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    showNotification(`Đã ${action} user ${userId}`);
-                    loadKeys();
-                    loadUsers();
-                } else {
-                    showNotification(data.error || `Lỗi khi ${action} user`, true);
-                }
-            })
-            .catch(error => showNotification(`Lỗi khi ${action} user`, true));
-        }
-        
-        function banAllUserKeys(userId) {
-            toggleBanUser(userId, true);
-        }
-        
-        function unbanAllUserKeys(userId) {
-            toggleBanUser(userId, false);
-        }
-        
-        function showUserHistory(userId) {
-            fetch(`${API_BASE}/admin/user-keys/${userId}`, {
-                headers: { 'Authorization': `Bearer ${authToken}` }
-            })
-            .then(response => response.json())
-            .then(keys => {
-                const historyList = document.getElementById('userHistoryList');
-                historyList.innerHTML = '';
-                
-                keys.forEach(key => {
-                    const row = document.createElement('tr');
-                    let statusText = key.banned ? 'BANNED' : key.used ? 'ACTIVE' : 'UNUSED';
-                    if (!key.permanent && new Date() > new Date(key.expires_at)) statusText = 'EXPIRED';
-                    
-                    row.innerHTML = `
-                        <td>${key.key}</td>
-                        <td>${new Date(key.created_at).toLocaleString()}</td>
-                        <td>${key.verified_at ? new Date(key.verified_at).toLocaleString() : 'N/A'}</td>
-                        <td>${key.permanent ? 'Vĩnh viễn' : (key.expires_at ? new Date(key.expires_at).toLocaleString() : 'N/A')}</td>
-                        <td>${statusText}</td>
-                    `;
-                    historyList.appendChild(row);
-                });
-                
-                document.getElementById('userHistoryModal').style.display = 'flex';
-            })
-            .catch(error => showNotification('Lỗi khi tải lịch sử user', true));
-        }
-        
-        function showAdminLogs(username) {
-            fetch(`${API_BASE}/admin/logs?username=${username}`, {
-                headers: { 'Authorization': `Bearer ${authToken}` }
-            })
-            .then(response => response.json())
-            .then(logs => {
-                const logsList = document.getElementById('adminLogsList');
-                logsList.innerHTML = '';
-                
-                logs.forEach(log => {
-                    const row = document.createElement('tr');
-                    row.innerHTML = `
-                        <td>${log.action}</td>
-                        <td>${log.target || 'N/A'}</td>
-                        <td>${log.details || 'N/A'}</td>
-                        <td>${new Date(log.timestamp).toLocaleString()}</td>
-                    `;
-                    logsList.appendChild(row);
-                });
-                
-                document.getElementById('adminLogsModal').style.display = 'flex';
-            })
-            .catch(error => showNotification('Lỗi khi tải logs admin', true));
-        }
-        
-        function loadChatMessages() {
-            fetch(`${API_BASE}/admin/messages`, {
-                headers: { 'Authorization': `Bearer ${authToken}` }
-            })
-            .then(response => response.json())
-            .then(messages => {
-                const chatMessages = document.getElementById('chatMessages');
-                chatMessages.innerHTML = '';
-                
-                messages.forEach(msg => {
-                    const div = document.createElement('div');
-                    div.classList.add('message');
-                    div.innerHTML = `
-                        <span class="message-sender">${msg.sender_username}:</span> ${msg.message}
-                        <br><span class="message-time">${new Date(msg.timestamp).toLocaleString()}</span>
-                    `;
-                    chatMessages.appendChild(div);
-                });
-                
-                chatMessages.scrollTop = chatMessages.scrollHeight;
-            })
-            .catch(error => showNotification('Lỗi khi tải chat', true));
-        }
-        
-        function sendChatMessage() {
-            const message = document.getElementById('chatInput').value.trim();
-            if (!message) return;
-            
-            fetch(`${API_BASE}/admin/message`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${authToken}`
-                },
-                body: JSON.stringify({ message })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    document.getElementById('chatInput').value = '';
-                    loadChatMessages();
-                } else {
-                    showNotification(data.error || 'Lỗi khi gửi tin nhắn', true);
-                }
-            })
-            .catch(error => showNotification('Lỗi khi gửi tin nhắn', true));
-        }
-        
-        function changePassword() {
-            const oldPassword = document.getElementById('oldPassword').value;
-            const newPassword = document.getElementById('newPassword').value;
-            
-            if (!oldPassword || !newPassword) {
-                showNotification('Vui lòng nhập đầy đủ', true);
+        function deleteAdmin(username) {
+            if (!isOwner) {
+                showNotification('Chỉ owner mới có quyền này', true);
                 return;
             }
             
-            fetch(`${API_BASE}/admin/change-password`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${authToken}`
-                },
-                body: JSON.stringify({ old_password: oldPassword, new_password: newPassword })
+            if (!confirm(`Xác nhận xóa admin ${username}?`)) return;
+            
+            fetch(`${API_BASE}/admin/delete-admin/${username}?admin_username=${currentUsername}`, {
+                method: 'DELETE',
+                headers: { 'Authorization': `Bearer ${authToken}` }
             })
-            .then(response => response.json())
+            .then(res => res.json())
             .then(data => {
                 if (data.success) {
-                    showNotification('Đổi password thành công');
-                    document.getElementById('oldPassword').value = '';
-                    document.getElementById('newPassword').value = '';
+                    showNotification('Xóa admin thành công');
+                    loadAdmins();
                 } else {
-                    showNotification(data.error || 'Lỗi khi đổi password', true);
+                    showNotification(data.error || 'Lỗi xóa admin', true);
                 }
             })
-            .catch(error => showNotification('Lỗi khi đổi password', true));
+            .catch(err => showNotification('Lỗi xóa admin', true));
         }
         
-        function closeModal(modalId) {
-            document.getElementById(modalId).style.display = 'none';
+        function backupDatabase() {
+            fetch(`${API_BASE}/admin/backup`, {
+                headers: { 'Authorization': `Bearer ${authToken}` }
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    showNotification('Backup thành công: ' + data.backup_path);
+                } else {
+                    showNotification(data.error || 'Lỗi backup', true);
+                }
+            })
+            .catch(err => showNotification('Lỗi backup', true));
         }
         
-        function showNotification(message, isError = false) {
-            const notification = document.getElementById('notification');
-            notification.textContent = message;
-            notification.className = isError ? 'notification error' : 'notification';
-            notification.style.display = 'block';
-            setTimeout(() => notification.style.display = 'none', 3000);
+        // Khởi tạo
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedToken = localStorage.getItem('adminToken');
+            const savedUsername = localStorage.getItem('adminUsername');
+            const savedSuper = localStorage.getItem('isSuperAdmin') === 'true';
+            const savedOwner = localStorage.getItem('isOwner') === 'true';
+            
+            if (savedToken && savedUsername) {
+                authToken = savedToken;
+                currentUsername = savedUsername;
+                isSuperAdmin = savedSuper;
+                isOwner = savedOwner;
+                showDashboard();
+            }
+            
+            document.getElementById('loginBtn').addEventListener('click', login);
+            document.getElementById('logoutBtn').addEventListener('click', logout);
+            document.getElementById('refreshBtn').addEventListener('click', refreshAll);
+            document.getElementById('backupBtn').addEventListener('click', backupDatabase);
+            
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.addEventListener('click', () => switchTab(tab.dataset.tab));
+            });
+            
+            document.getElementById('searchKey').addEventListener('input', debounce(loadKeys, 300));
+            document.getElementById('searchUser').addEventListener('input', debounce(loadUsers, 300));
+            document.getElementById('searchActivity').addEventListener('input', debounce(loadAdminActivity, 300));
+            
+            document.getElementById('createKeyBtn').addEventListener('click', createKey);
+            document.getElementById('createAdminBtn').addEventListener('click', createAdmin);
+            document.getElementById('sendChatBtn').addEventListener('click', sendChatMessage);
+            document.getElementById('chatInput').addEventListener('keypress', e => {
+                if (e.key === 'Enter') sendChatMessage();
+            });
+            
+            document.getElementById('closeUserModal').addEventListener('click', () => {
+                document.getElementById('userDetailModal').style.display = 'none';
+            });
+            document.getElementById('closeKeyHistoryModal').addEventListener('click', () => {
+                document.getElementById('keyHistoryModal').style.display = 'none';
+            });
+            
+            window.addEventListener('click', e => {
+                if (e.target === document.getElementById('userDetailModal')) {
+                    e.target.style.display = 'none';
+                }
+                if (e.target === document.getElementById('keyHistoryModal')) {
+                    e.target.style.display = 'none';
+                }
+                if (e.target === document.getElementById('keyEditModal')) {
+                    e.target.style.display = 'none';
+                }
+            });
+        });
+        
+        function login() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            showLoader('loginBtn', 'Đang đăng nhập...');
+            
+            fetch(`${API_BASE}/admin/login`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password })
+            })
+            .then(res => res.json())
+            .then(data => {
+                removeLoader('loginBtn', '<i class="fas fa-sign-in-alt"></i> Đăng nhập');
+                if (data.success) {
+                    authToken = data.token;
+                    currentUsername = username;
+                    isSuperAdmin = data.is_super_admin;
+                    isOwner = data.is_owner;
+                    
+                    localStorage.setItem('adminToken', authToken);
+                    localStorage.setItem('adminUsername', currentUsername);
+                    localStorage.setItem('isSuperAdmin', isSuperAdmin);
+                    localStorage.setItem('isOwner', isOwner);
+                    
+                    showDashboard();
+                    showNotification('Đăng nhập thành công');
+                } else {
+                    showNotification('Sai username hoặc password', true);
+                }
+            })
+            .catch(err => {
+                removeLoader('loginBtn', '<i class="fas fa-sign-in-alt"></i> Đăng nhập');
+                showNotification('Lỗi đăng nhập', true);
+            });
         }
         
-        // Global functions
-        window.updateKeyExpiry = updateKeyExpiry;
-        window.deleteKey = deleteKey;
-        window.toggleBanUser = toggleBanUser;
-        window.banAllUserKeys = banAllUserKeys;
-        window.unbanAllUserKeys = unbanAllUserKeys;
-        window.deleteAdmin = deleteAdmin;
-        window.updateAdminRole = updateAdminRole;
-        window.showAdminLogs = showAdminLogs;
-        window.showUserHistory = showUserHistory;
-        window.closeModal = closeModal;
+        function showDashboard() {
+            document.getElementById('loginForm').style.display = 'none';
+            document.getElementById('dashboard').style.display = 'block';
+            document.getElementById('headerControls').style.display = 'flex';
+            
+            const roleBadge = document.getElementById('userRoleBadge');
+            if (isOwner) {
+                roleBadge.textContent = 'Owner';
+                roleBadge.classList.add('role-owner');
+                document.getElementById('adminsTabBtn').style.display = 'block';
+                document.getElementById('activityTabBtn').style.display = 'block';
+            } else if (isSuperAdmin) {
+                roleBadge.textContent = 'Super Admin';
+                roleBadge.classList.add('role-superadmin');
+                document.getElementById('adminsTabBtn').style.display = 'block';
+                document.getElementById('activityTabBtn').style.display = 'none';
+            } else {
+                roleBadge.textContent = 'Admin';
+                roleBadge.classList.add('role-admin');
+                document.getElementById('adminsTabBtn').style.display = 'none';
+                document.getElementById('activityTabBtn').style.display = 'none';
+            }
+            
+            switchTab('keys');
+        }
+        
+        function logout() {
+            localStorage.clear();
+            authToken = '';
+            currentUsername = '';
+            isSuperAdmin = false;
+            isOwner = false;
+            document.getElementById('dashboard').style.display = 'none';
+            document.getElementById('loginForm').style.display = 'block';
+            document.getElementById('headerControls').style.display = 'none';
+            showNotification('Đã đăng xuất');
+        }
+        
+        function refreshAll() {
+            loadKeys();
+            loadUsers();
+            if (isSuperAdmin || isOwner) loadAdmins();
+            if (isOwner) loadAdminActivity();
+            loadChatMessages();
+            showNotification('Đã refresh');
+        }
     </script>
 </body>
 </html>
