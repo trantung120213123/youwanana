@@ -1578,6 +1578,7 @@
                     showDashboard();
                     initSocket();
                     showNotification('Đăng nhập thành công');
+                    localStorage.setItem('token', tokenFromServer); // tokenFromServer là token trả về
                 } else {
                     showNotification(data.error || 'Sai username hoặc password', true);
                 }
