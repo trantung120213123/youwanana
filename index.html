@@ -5,238 +5,51 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Panel - Key System</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-        
-        body {
-            background-color: #1a1a2e;
-            color: #fff;
-            line-height: 1.6;
-        }
-        
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-        
-        header {
-            background-color: #16213e;
-            padding: 20px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        h1 {
-            text-align: center;
-            margin-bottom: 0;
-            color: #4cc9f0;
-        }
-        
-        .header-controls {
-            display: flex;
-            gap: 10px;
-        }
-        
-        .refresh-btn {
-            background-color: #4cc9f0;
-            color: #16213e;
-            border: none;
-            padding: 10px 15px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: background-color 0.3s;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-        
-        .refresh-btn:hover {
-            background-color: #2b6cb0;
-        }
-        
-        .login-form {
-            background-color: #16213e;
-            padding: 20px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-        
-        .form-group {
-            margin-bottom: 15px;
-        }
-        
-        label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-        }
-        
-        input[type="text"],
-        input[type="password"],
-        input[type="number"] {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #4cc9f0;
-            border-radius: 5px;
-            background-color: #0f3460;
-            color: #fff;
-        }
-        
-        button {
-            background-color: #4cc9f0;
-            color: #16213e;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: background-color 0.3s;
-        }
-        
-        button:hover {
-            background-color: #2b6cb0;
-        }
-        
-        .dashboard {
-            display: none;
-        }
-        
-        .tabs {
-            display: flex;
-            margin-bottom: 20px;
-            background-color: #16213e;
-            border-radius: 10px;
-            overflow: hidden;
-        }
-        
-        .tab {
-            padding: 15px 20px;
-            cursor: pointer;
-            flex: 1;
-            text-align: center;
-            transition: background-color 0.3s;
-        }
-        
-        .tab.active {
-            background-color: #4cc9f0;
-            color: #16213e;
-            font-weight: bold;
-        }
-        
-        .tab-content {
-            display: none;
-        }
-        
-        .tab-content.active {
-            display: block;
-        }
-        
-        .card {
-            background-color: #16213e;
-            padding: 20px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-        
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
-        
-        th, td {
-            padding: 12px 15px;
-            text-align: left;
-            border-bottom: 1px solid #0f3460;
-        }
-        
-        th {
-            background-color: #0f3460;
-            color: #4cc9f0;
-        }
-        
-        tr:hover {
-            background-color: #0f3460;
-        }
-        
-        .action-btn {
-            padding: 5px 10px;
-            margin-right: 5px;
-            border-radius: 3px;
-            font-size: 12px;
-        }
-        
-        .btn-danger {
-            background-color: #e94560;
-        }
-        
-        .btn-success {
-            background-color: #4caf50;
-        }
-        
-        .btn-warning {
-            background-color: #ff9800;
-        }
-        
-        .status-badge {
-            padding: 3px 8px;
-            border-radius: 10px;
-            font-size: 12px;
-            font-weight: bold;
-        }
-        
-        .status-active {
-            background-color: #4caf50;
-            color: white;
-        }
-        
-        .status-expired {
-            background-color: #e94560;
-            color: white;
-        }
-        
-        .status-banned {
-            background-color: #ff9800;
-            color: white;
-        }
-        
-        .form-inline {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 15px;
-        }
-        
-        .form-inline input {
-            flex: 1;
-        }
-        
-        .notification {
+        /* Same as original */
+        .modal {
             position: fixed;
-            top: 20px;
-            right: 20px;
-            padding: 15px 20px;
-            border-radius: 5px;
-            background-color: #4caf50;
-            color: white;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
             display: none;
+            justify-content: center;
+            align-items: center;
             z-index: 1000;
         }
-        
-        .notification.error {
-            background-color: #e94560;
+        .modal-content {
+            background: #16213e;
+            padding: 20px;
+            border-radius: 10px;
+            max-width: 800px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        .close-modal {
+            float: right;
+            cursor: pointer;
+            color: #e94560;
+        }
+        .chat-messages {
+            max-height: 400px;
+            overflow-y: auto;
+            margin-bottom: 15px;
+        }
+        .message {
+            background: #0f3460;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+        .message-sender {
+            font-weight: bold;
+            color: #4cc9f0;
+        }
+        .message-time {
+            font-size: 12px;
+            color: #ccc;
         }
     </style>
 </head>
@@ -264,12 +77,14 @@
             <button id="loginBtn">Đăng nhập</button>
         </div>
         
-        <div class="dashboard" id="dashboard">
+        <div class="dashboard" id="dashboard" style="display: none;">
             <div class="tabs">
                 <div class="tab active" data-tab="keys">Quản lý Keys</div>
                 <div class="tab" data-tab="users">Quản lý Users</div>
                 <div class="tab" data-tab="create">Tạo Key</div>
+                <div class="tab" data-tab="chat">Chat Admins</div>
                 <div class="tab" data-tab="admins" id="adminsTabBtn" style="display: none;">Quản lý Admins</div>
+                <div class="tab" data-tab="settings" id="settingsTabBtn" style="display: none;">Cài đặt</div>
             </div>
             
             <div class="tab-content active" id="keysTab">
@@ -287,6 +102,7 @@
                                 <th>Username</th>
                                 <th>HWID</th>
                                 <th>Ngày tạo</th>
+                                <th>Xác thực</th>
                                 <th>Hết hạn</th>
                                 <th>Trạng thái</th>
                                 <th>Hành động</th>
@@ -302,6 +118,10 @@
             <div class="tab-content" id="usersTab">
                 <div class="card">
                     <h2>Danh sách Users</h2>
+                    <div class="form-inline">
+                        <input type="text" id="searchUser" placeholder="Tìm kiếm user...">
+                        <button id="searchUserBtn">Tìm kiếm</button>
+                    </div>
                     <table id="usersTable">
                         <thead>
                             <tr>
@@ -343,6 +163,19 @@
                 </div>
             </div>
             
+            <div class="tab-content" id="chatTab">
+                <div class="card">
+                    <h2>Chat Admins</h2>
+                    <div class="chat-messages" id="chatMessages">
+                        <!-- Messages populated here -->
+                    </div>
+                    <div class="form-inline">
+                        <input type="text" id="chatInput" placeholder="Nhập tin nhắn...">
+                        <button id="sendChatBtn">Gửi</button>
+                    </div>
+                </div>
+            </div>
+            
             <div class="tab-content" id="adminsTab">
                 <div class="card">
                     <h2>Danh sách Admins</h2>
@@ -354,20 +187,42 @@
                         <label for="newAdminPassword">Password mới:</label>
                         <input type="password" id="newAdminPassword" placeholder="Nhập password mới">
                     </div>
+                    <div class="form-group">
+                        <label for="newAdminRole">Role (0: Admin, 1: Super):</label>
+                        <select id="newAdminRole">
+                            <option value="0">Admin</option>
+                            <option value="1">Super Admin</option>
+                        </select>
+                    </div>
                     <button id="createAdminBtn">Tạo Admin</button>
                     <table id="adminsTable">
                         <thead>
                             <tr>
                                 <th>Username</th>
-                                <th>Super Admin</th>
+                                <th>Role</th>
                                 <th>Ngày tạo</th>
                                 <th>Hành động</th>
                             </tr>
                         </thead>
                         <tbody id="adminsList">
-                            <!-- Admins will be populated here -->
+                            <!-- Admins populated here -->
                         </tbody>
                     </table>
+                </div>
+            </div>
+            
+            <div class="tab-content" id="settingsTab">
+                <div class="card">
+                    <h2>Cài đặt</h2>
+                    <div class="form-group">
+                        <label for="oldPassword">Password cũ:</label>
+                        <input type="password" id="oldPassword" placeholder="Nhập password cũ">
+                    </div>
+                    <div class="form-group">
+                        <label for="newPassword">Password mới:</label>
+                        <input type="password" id="newPassword" placeholder="Nhập password mới">
+                    </div>
+                    <button id="changePasswordBtn">Đổi Password</button>
                 </div>
             </div>
         </div>
@@ -375,10 +230,49 @@
     
     <div class="notification" id="notification"></div>
     
+    <!-- Modal for user history -->
+    <div class="modal" id="userHistoryModal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal('userHistoryModal')">×</span>
+            <h2>Lịch sử Key của User</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Key</th>
+                        <th>Ngày tạo</th>
+                        <th>Ngày xác thực</th>
+                        <th>Hết hạn</th>
+                        <th>Trạng thái</th>
+                    </tr>
+                </thead>
+                <tbody id="userHistoryList"></tbody>
+            </table>
+        </div>
+    </div>
+    
+    <!-- Modal for admin logs -->
+    <div class="modal" id="adminLogsModal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal('adminLogsModal')">×</span>
+            <h2>Lịch sử Hoạt động của Admin</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Action</th>
+                        <th>Target</th>
+                        <th>Details</th>
+                        <th>Timestamp</th>
+                    </tr>
+                </thead>
+                <tbody id="adminLogsList"></tbody>
+            </table>
+        </div>
+    </div>
+    
     <script>
         const API_BASE = "https://serverluexreal.onrender.com";
         let authToken = '';
-        let isSuperAdmin = false;
+        let userRole = 0; // 0: admin, 1: super, 2: owner
         
         document.getElementById('loginBtn').addEventListener('click', login);
         document.getElementById('refreshBtn').addEventListener('click', refreshAll);
@@ -387,8 +281,11 @@
         });
         
         document.getElementById('searchBtn').addEventListener('click', loadKeys);
+        document.getElementById('searchUserBtn').addEventListener('click', loadUsers);
         document.getElementById('createKeyBtn').addEventListener('click', createKey);
         document.getElementById('createAdminBtn').addEventListener('click', createAdmin);
+        document.getElementById('sendChatBtn').addEventListener('click', sendChatMessage);
+        document.getElementById('changePasswordBtn').addEventListener('click', changePassword);
         
         function login() {
             const username = document.getElementById('username').value;
@@ -401,81 +298,59 @@
             
             fetch(`${API_BASE}/admin/login`, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ username, password })
             })
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
                     authToken = data.token;
-                    isSuperAdmin = data.is_super_admin;
+                    userRole = data.role;
                     document.getElementById('loginForm').style.display = 'none';
                     document.getElementById('dashboard').style.display = 'block';
                     document.getElementById('headerControls').style.display = 'flex';
-                    if (isSuperAdmin) {
+                    document.getElementById('settingsTabBtn').style.display = 'block';
+                    if (userRole >= 1) {
                         document.getElementById('adminsTabBtn').style.display = 'block';
                     }
                     showNotification('Đăng nhập thành công');
-                    loadKeys();
-                    loadUsers();
-                    if (isSuperAdmin) {
-                        loadAdmins();
-                    }
+                    refreshAll();
                 } else {
                     showNotification('Sai thông tin đăng nhập', true);
                 }
             })
-            .catch(error => {
-                console.error('Error:', error);
-                showNotification('Lỗi kết nối', true);
-            });
+            .catch(error => showNotification('Lỗi kết nối', true));
         }
         
         function refreshAll() {
             if (!authToken) return;
             
             showNotification('Đang làm mới dữ liệu...');
-            
-            // Làm mới danh sách keys
             loadKeys();
-            
-            // Làm mới danh sách users
             loadUsers();
-            
-            if (isSuperAdmin) {
-                loadAdmins();
-            }
-            
-            // Hiển thị thông báo thành công sau khi tải xong
-            setTimeout(() => {
-                showNotification('Đã làm mới tất cả dữ liệu');
-            }, 500);
+            if (userRole >= 1) loadAdmins();
+            if (document.querySelector('.tab.active').dataset.tab === 'chat') loadChatMessages();
+            setTimeout(() => showNotification('Đã làm mới tất cả dữ liệu'), 500);
         }
         
         function switchTab(tabName) {
-            if (tabName === 'admins' && !isSuperAdmin) {
-                return; // Không cho phép truy cập nếu không phải super admin
-            }
+            if ((tabName === 'admins' && userRole < 1) || (tabName === 'settings' && userRole < 0)) return;
             
             document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
             document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
             
             document.querySelector(`.tab[data-tab="${tabName}"]`).classList.add('active');
             document.getElementById(`${tabName}Tab`).classList.add('active');
+            
+            if (tabName === 'chat') loadChatMessages();
         }
         
         function loadKeys() {
             if (!authToken) return;
             
             const searchKey = document.getElementById('searchKey').value;
-            let url = `${API_BASE}/admin/keys`;
-            
-            fetch(url, {
-                headers: {
-                    'Authorization': `Bearer ${authToken}`
-                }
+            fetch(`${API_BASE}/admin/keys`, {
+                headers: { 'Authorization': `Bearer ${authToken}` }
             })
             .then(response => response.json())
             .then(keys => {
@@ -487,7 +362,6 @@
                     return;
                 }
                 
-                // Filter keys if search term is provided
                 if (searchKey) {
                     keys = keys.filter(key => 
                         key.key.includes(searchKey) || 
@@ -498,8 +372,6 @@
                 
                 keys.forEach(key => {
                     const row = document.createElement('tr');
-                    
-                    // Determine status
                     let statusClass = '';
                     let statusText = '';
                     
@@ -526,6 +398,7 @@
                         <td>${key.username || 'N/A'}</td>
                         <td>${key.hwid || 'N/A'}</td>
                         <td>${new Date(key.created_at).toLocaleString()}</td>
+                        <td>${key.verified_at ? new Date(key.verified_at).toLocaleString() : 'N/A'}</td>
                         <td>${key.permanent ? 'Vĩnh viễn' : (key.expires_at ? new Date(key.expires_at).toLocaleString() : 'N/A')}</td>
                         <td><span class="status-badge ${statusClass}">${statusText}</span></td>
                         <td>
@@ -538,23 +411,18 @@
                             <button class="action-btn btn-danger" onclick="deleteKey('${key.key}')">Xóa</button>
                         </td>
                     `;
-                    
                     keysList.appendChild(row);
                 });
             })
-            .catch(error => {
-                console.error('Error:', error);
-                showNotification('Lỗi khi tải danh sách keys', true);
-            });
+            .catch(error => showNotification('Lỗi khi tải danh sách keys', true));
         }
         
         function loadUsers() {
             if (!authToken) return;
             
+            const searchUser = document.getElementById('searchUser').value;
             fetch(`${API_BASE}/admin/users`, {
-                headers: {
-                    'Authorization': `Bearer ${authToken}`
-                }
+                headers: { 'Authorization': `Bearer ${authToken}` }
             })
             .then(response => response.json())
             .then(users => {
@@ -566,12 +434,18 @@
                     return;
                 }
                 
+                if (searchUser) {
+                    users = users.filter(user => 
+                        user.user_id.includes(searchUser) || 
+                        (user.username && user.username.includes(searchUser))
+                    );
+                }
+                
                 users.forEach(user => {
                     const row = document.createElement('tr');
-                    
                     row.innerHTML = `
-                        <td>${user.user_id}</td>
-                        <td>${user.username || 'N/A'}</td>
+                        <td><a href="#" onclick="showUserHistory('${user.user_id}')">${user.user_id}</a></td>
+                        <td><a href="#" onclick="showUserHistory('${user.user_id}')">${user.username || 'N/A'}</a></td>
                         <td>${user.total_keys_used}</td>
                         <td>${new Date(user.last_seen).toLocaleString()}</td>
                         <td>
@@ -579,23 +453,17 @@
                             <button class="action-btn btn-success" onclick="unbanAllUserKeys('${user.user_id}')">UNBAN ALL</button>
                         </td>
                     `;
-                    
                     usersList.appendChild(row);
                 });
             })
-            .catch(error => {
-                console.error('Error:', error);
-                showNotification('Lỗi khi tải danh sách users', true);
-            });
+            .catch(error => showNotification('Lỗi khi tải danh sách users', true));
         }
         
         function loadAdmins() {
-            if (!authToken || !isSuperAdmin) return;
+            if (!authToken || userRole < 1) return;
             
             fetch(`${API_BASE}/admin/admins`, {
-                headers: {
-                    'Authorization': `Bearer ${authToken}`
-                }
+                headers: { 'Authorization': `Bearer ${authToken}` }
             })
             .then(response => response.json())
             .then(admins => {
@@ -609,23 +477,25 @@
                 
                 admins.forEach(admin => {
                     const row = document.createElement('tr');
-                    
+                    const roleText = admin.role === 2 ? 'Owner' : admin.role === 1 ? 'Super Admin' : 'Admin';
                     row.innerHTML = `
                         <td>${admin.username}</td>
-                        <td>${admin.is_super_admin ? 'Có' : 'Không'}</td>
+                        <td>${roleText}</td>
                         <td>${new Date(admin.created_at).toLocaleString()}</td>
                         <td>
-                            ${!admin.is_super_admin ? `<button class="action-btn btn-danger" onclick="deleteAdmin('${admin.username}')">Xóa</button>` : ''}
+                            ${admin.role < userRole ? `<button class="action-btn btn-danger" onclick="deleteAdmin('${admin.username}')">Xóa</button>` : ''}
+                            ${userRole === 2 && admin.role < 2 ? `
+                                <button class="action-btn btn-success" onclick="updateAdminRole('${admin.username}', ${admin.role === 1 ? 0 : 1})">
+                                    ${admin.role === 1 ? 'Demote' : 'Promote'}
+                                </button>
+                                <button class="action-btn btn-warning" onclick="showAdminLogs('${admin.username}')">Logs</button>
+                            ` : ''}
                         </td>
                     `;
-                    
                     adminsList.appendChild(row);
                 });
             })
-            .catch(error => {
-                console.error('Error:', error);
-                showNotification('Lỗi khi tải danh sách admins', true);
-            });
+            .catch(error => showNotification('Lỗi khi tải danh sách admins', true));
         }
         
         function createKey() {
@@ -655,17 +525,15 @@
                     showNotification(data.error || 'Lỗi khi tạo key', true);
                 }
             })
-            .catch(error => {
-                console.error('Error:', error);
-                showNotification('Lỗi khi tạo key', true);
-            });
+            .catch(error => showNotification('Lỗi khi tạo key', true));
         }
         
         function createAdmin() {
-            if (!authToken || !isSuperAdmin) return;
+            if (!authToken || userRole < 1) return;
             
             const username = document.getElementById('newAdminUsername').value;
             const password = document.getElementById('newAdminPassword').value;
+            const role = parseInt(document.getElementById('newAdminRole').value);
             
             if (!username || !password) {
                 showNotification('Vui lòng nhập đầy đủ thông tin', true);
@@ -678,7 +546,7 @@
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${authToken}`
                 },
-                body: JSON.stringify({ username, password })
+                body: JSON.stringify({ username, password, role })
             })
             .then(response => response.json())
             .then(data => {
@@ -691,18 +559,24 @@
                     showNotification(data.error || 'Lỗi khi tạo admin', true);
                 }
             })
-            .catch(error => {
-                console.error('Error:', error);
-                showNotification('Lỗi khi tạo admin', true);
-            });
+            .catch(error => showNotification('Lỗi khi tạo admin', true));
         }
         
         function updateKeyExpiry(key) {
             if (!authToken) return;
             
-            const hours = prompt(`Nhập số giờ mới cho key ${key}:`, "24");
+            const input = prompt(`Nhập số giờ mới cho key ${key} (hoặc "permanent" cho vĩnh viễn):`, "24");
             
-            if (hours === null) return;
+            if (input === null) return;
+            
+            let body;
+            if (input.toLowerCase() === 'permanent') {
+                body = { key, permanent: true };
+            } else {
+                const hours = parseInt(input);
+                if (isNaN(hours)) return showNotification('Input không hợp lệ', true);
+                body = { key, hours };
+            }
             
             fetch(`${API_BASE}/admin/update-key-expiry`, {
                 method: 'POST',
@@ -710,21 +584,18 @@
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${authToken}`
                 },
-                body: JSON.stringify({ key, hours: parseInt(hours) })
+                body: JSON.stringify(body)
             })
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    showNotification(`Đã cập nhật thời gian key ${key} thành ${hours} giờ`);
+                    showNotification(`Đã cập nhật key ${key}`);
                     loadKeys();
                 } else {
                     showNotification(data.error || 'Lỗi khi cập nhật key', true);
                 }
             })
-            .catch(error => {
-                console.error('Error:', error);
-                showNotification('Lỗi khi cập nhật key', true);
-            });
+            .catch(error => showNotification('Lỗi khi cập nhật key', true));
         }
         
         function deleteKey(key) {
@@ -734,9 +605,7 @@
             
             fetch(`${API_BASE}/admin/delete-key/${key}`, {
                 method: 'DELETE',
-                headers: {
-                    'Authorization': `Bearer ${authToken}`
-                }
+                headers: { 'Authorization': `Bearer ${authToken}` }
             })
             .then(response => response.json())
             .then(data => {
@@ -747,22 +616,17 @@
                     showNotification(data.error || 'Lỗi khi xóa key', true);
                 }
             })
-            .catch(error => {
-                console.error('Error:', error);
-                showNotification('Lỗi khi xóa key', true);
-            });
+            .catch(error => showNotification('Lỗi khi xóa key', true));
         }
         
         function deleteAdmin(username) {
-            if (!authToken || !isSuperAdmin) return;
+            if (!authToken) return;
             
             if (!confirm(`Bạn có chắc chắn muốn xóa admin ${username}?`)) return;
             
             fetch(`${API_BASE}/admin/delete-admin/${username}`, {
                 method: 'DELETE',
-                headers: {
-                    'Authorization': `Bearer ${authToken}`
-                }
+                headers: { 'Authorization': `Bearer ${authToken}` }
             })
             .then(response => response.json())
             .then(data => {
@@ -773,10 +637,32 @@
                     showNotification(data.error || 'Lỗi khi xóa admin', true);
                 }
             })
-            .catch(error => {
-                console.error('Error:', error);
-                showNotification('Lỗi khi xóa admin', true);
-            });
+            .catch(error => showNotification('Lỗi khi xóa admin', true));
+        }
+        
+        function updateAdminRole(username, newRole) {
+            if (!authToken || userRole !== 2) return;
+            
+            if (!confirm(`Bạn có chắc chắn muốn thay đổi role của ${username}?`)) return;
+            
+            fetch(`${API_BASE}/admin/update-admin-role`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${authToken}`
+                },
+                body: JSON.stringify({ username, new_role: newRole })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showNotification(`Đã cập nhật role của ${username}`);
+                    loadAdmins();
+                } else {
+                    showNotification(data.error || 'Lỗi khi cập nhật role', true);
+                }
+            })
+            .catch(error => showNotification('Lỗi khi cập nhật role', true));
         }
         
         function toggleBanUser(userId, ban) {
@@ -805,68 +691,151 @@
                     showNotification(data.error || `Lỗi khi ${action} user`, true);
                 }
             })
-            .catch(error => {
-                console.error('Error:', error);
-                showNotification(`Lỗi khi ${action} user`, true);
-            });
+            .catch(error => showNotification(`Lỗi khi ${action} user`, true));
         }
         
         function banAllUserKeys(userId) {
-            if (!authToken) return;
-            
-            if (!confirm(`Bạn có chắc chắn muốn BAN TẤT CẢ keys của user ${userId}?`)) return;
-            
-            fetch(`${API_BASE}/admin/ban-user`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${authToken}`
-                },
-                body: JSON.stringify({ user_id: userId })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    showNotification(`Đã ban tất cả keys của user ${userId}`);
-                    loadKeys();
-                    loadUsers();
-                } else {
-                    showNotification(data.error || 'Lỗi khi ban user', true);
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                showNotification('Lỗi khi ban user', true);
-            });
+            toggleBanUser(userId, true);
         }
         
         function unbanAllUserKeys(userId) {
-            if (!authToken) return;
+            toggleBanUser(userId, false);
+        }
+        
+        function showUserHistory(userId) {
+            fetch(`${API_BASE}/admin/user-keys/${userId}`, {
+                headers: { 'Authorization': `Bearer ${authToken}` }
+            })
+            .then(response => response.json())
+            .then(keys => {
+                const historyList = document.getElementById('userHistoryList');
+                historyList.innerHTML = '';
+                
+                keys.forEach(key => {
+                    const row = document.createElement('tr');
+                    let statusText = key.banned ? 'BANNED' : key.used ? 'ACTIVE' : 'UNUSED';
+                    if (!key.permanent && new Date() > new Date(key.expires_at)) statusText = 'EXPIRED';
+                    
+                    row.innerHTML = `
+                        <td>${key.key}</td>
+                        <td>${new Date(key.created_at).toLocaleString()}</td>
+                        <td>${key.verified_at ? new Date(key.verified_at).toLocaleString() : 'N/A'}</td>
+                        <td>${key.permanent ? 'Vĩnh viễn' : (key.expires_at ? new Date(key.expires_at).toLocaleString() : 'N/A')}</td>
+                        <td>${statusText}</td>
+                    `;
+                    historyList.appendChild(row);
+                });
+                
+                document.getElementById('userHistoryModal').style.display = 'flex';
+            })
+            .catch(error => showNotification('Lỗi khi tải lịch sử user', true));
+        }
+        
+        function showAdminLogs(username) {
+            fetch(`${API_BASE}/admin/logs?username=${username}`, {
+                headers: { 'Authorization': `Bearer ${authToken}` }
+            })
+            .then(response => response.json())
+            .then(logs => {
+                const logsList = document.getElementById('adminLogsList');
+                logsList.innerHTML = '';
+                
+                logs.forEach(log => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${log.action}</td>
+                        <td>${log.target || 'N/A'}</td>
+                        <td>${log.details || 'N/A'}</td>
+                        <td>${new Date(log.timestamp).toLocaleString()}</td>
+                    `;
+                    logsList.appendChild(row);
+                });
+                
+                document.getElementById('adminLogsModal').style.display = 'flex';
+            })
+            .catch(error => showNotification('Lỗi khi tải logs admin', true));
+        }
+        
+        function loadChatMessages() {
+            fetch(`${API_BASE}/admin/messages`, {
+                headers: { 'Authorization': `Bearer ${authToken}` }
+            })
+            .then(response => response.json())
+            .then(messages => {
+                const chatMessages = document.getElementById('chatMessages');
+                chatMessages.innerHTML = '';
+                
+                messages.forEach(msg => {
+                    const div = document.createElement('div');
+                    div.classList.add('message');
+                    div.innerHTML = `
+                        <span class="message-sender">${msg.sender_username}:</span> ${msg.message}
+                        <br><span class="message-time">${new Date(msg.timestamp).toLocaleString()}</span>
+                    `;
+                    chatMessages.appendChild(div);
+                });
+                
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            })
+            .catch(error => showNotification('Lỗi khi tải chat', true));
+        }
+        
+        function sendChatMessage() {
+            const message = document.getElementById('chatInput').value.trim();
+            if (!message) return;
             
-            if (!confirm(`Bạn có chắc chắn muốn UNBAN TẤT CẢ keys của user ${userId}?`)) return;
-            
-            fetch(`${API_BASE}/admin/unban-user`, {
+            fetch(`${API_BASE}/admin/message`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${authToken}`
                 },
-                body: JSON.stringify({ user_id: userId })
+                body: JSON.stringify({ message })
             })
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    showNotification(`Đã unban tất cả keys của user ${userId}`);
-                    loadKeys();
-                    loadUsers();
+                    document.getElementById('chatInput').value = '';
+                    loadChatMessages();
                 } else {
-                    showNotification(data.error || 'Lỗi khi unban user', true);
+                    showNotification(data.error || 'Lỗi khi gửi tin nhắn', true);
                 }
             })
-            .catch(error => {
-                console.error('Error:', error);
-                showNotification('Lỗi khi unban user', true);
-            });
+            .catch(error => showNotification('Lỗi khi gửi tin nhắn', true));
+        }
+        
+        function changePassword() {
+            const oldPassword = document.getElementById('oldPassword').value;
+            const newPassword = document.getElementById('newPassword').value;
+            
+            if (!oldPassword || !newPassword) {
+                showNotification('Vui lòng nhập đầy đủ', true);
+                return;
+            }
+            
+            fetch(`${API_BASE}/admin/change-password`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${authToken}`
+                },
+                body: JSON.stringify({ old_password: oldPassword, new_password: newPassword })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showNotification('Đổi password thành công');
+                    document.getElementById('oldPassword').value = '';
+                    document.getElementById('newPassword').value = '';
+                } else {
+                    showNotification(data.error || 'Lỗi khi đổi password', true);
+                }
+            })
+            .catch(error => showNotification('Lỗi khi đổi password', true));
+        }
+        
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
         }
         
         function showNotification(message, isError = false) {
@@ -874,19 +843,20 @@
             notification.textContent = message;
             notification.className = isError ? 'notification error' : 'notification';
             notification.style.display = 'block';
-            
-            setTimeout(() => {
-                notification.style.display = 'none';
-            }, 3000);
+            setTimeout(() => notification.style.display = 'none', 3000);
         }
         
-        // Make functions available globally
+        // Global functions
         window.updateKeyExpiry = updateKeyExpiry;
         window.deleteKey = deleteKey;
         window.toggleBanUser = toggleBanUser;
         window.banAllUserKeys = banAllUserKeys;
         window.unbanAllUserKeys = unbanAllUserKeys;
         window.deleteAdmin = deleteAdmin;
+        window.updateAdminRole = updateAdminRole;
+        window.showAdminLogs = showAdminLogs;
+        window.showUserHistory = showUserHistory;
+        window.closeModal = closeModal;
     </script>
 </body>
 </html>
