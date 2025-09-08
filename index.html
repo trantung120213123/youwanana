@@ -894,7 +894,7 @@
     <div class="notification" id="notification"></div>
     
     <script>
-        const API_BASE = 'https://serverluexreal.onrender.com'; // Thay bằng URL server thực tế
+        const API_BASE = 'http://localhost:3000';
         let authToken = '';
         let currentUsername = '';
         let isSuperAdmin = false;
@@ -976,20 +976,22 @@
                 btn.textContent = i;
                 if (i === currentPage) btn.classList.add('active');
                 btn.addEventListener('click', () => {
-                    currentPage = i;
+                    currentPage[paginationId.replace('Pagination', '')] = i;
                     loadFunc();
                 });
                 pagination.appendChild(btn);
             }
         }
         
-        function loadKeys() {
-            const search = document.getElementById('searchKey').value.toLowerCase();
-            fetch(`${API_BASE}/admin/keys`, {
-                headers: { 'Authorization': `Bearer ${authToken}` }
-            })
-            .then(res => res.json())
-            .then(keys => {
+        async function loadKeys() {
+            try {
+                const search = document.getElementById('searchKey').value.toLowerCase();
+                const response = await fetch(`${API_BASE}/admin/keys`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+                if (!response.ok) throw new Error('Lỗi tải keys');
+                const keys = await response.json();
+                
                 let filtered = keys.filter(k => 
                     k.key.toLowerCase().includes(search) ||
                     (k.user_id && k.user_id.toLowerCase().includes(search)) ||
@@ -1021,17 +1023,20 @@
                 });
                 
                 createPagination('keysPagination', total, currentPage.keys, loadKeys);
-            })
-            .catch(err => showNotification('Lỗi tải keys', true));
+            } catch (err) {
+                showNotification('Lỗi tải keys', true);
+            }
         }
         
-        function loadUsers() {
-            const search = document.getElementById('searchUser').value.toLowerCase();
-            fetch(`${API_BASE}/admin/users`, {
-                headers: { 'Authorization': `Bearer ${authToken}` }
-            })
-            .then(res => res.json())
-            .then(users => {
+        async function loadUsers() {
+            try {
+                const search = document.getElementById('searchUser').value.toLowerCase();
+                const response = await fetch(`${API_BASE}/admin/users`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+                if (!response.ok) throw new Error('Lỗi tải users');
+                const users = await response.json();
+                
                 let filtered = users.filter(u => 
                     u.user_id.toLowerCase().includes(search) ||
                     u.username.toLowerCase().includes(search)
@@ -1063,16 +1068,19 @@
                 });
                 
                 createPagination('usersPagination', total, currentPage.users, loadUsers);
-            })
-            .catch(err => showNotification('Lỗi tải users', true));
+            } catch (err) {
+                showNotification('Lỗi tải users', true);
+            }
         }
         
-        function loadAdmins() {
-            fetch(`${API_BASE}/admin/admins`, {
-                headers: { 'Authorization': `Bearer ${authToken}` }
-            })
-            .then(res => res.json())
-            .then(admins => {
+        async function loadAdmins() {
+            try {
+                const response = await fetch(`${API_BASE}/admin/admins`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+                if (!response.ok) throw new Error('Lỗi tải admins');
+                const admins = await response.json();
+                
                 const tbody = document.getElementById('adminsList');
                 tbody.innerHTML = '';
                 admins.forEach(admin => {
@@ -1088,17 +1096,20 @@
                     `;
                     tbody.appendChild(tr);
                 });
-            })
-            .catch(err => showNotification('Lỗi tải admins', true));
+            } catch (err) {
+                showNotification('Lỗi tải admins', true);
+            }
         }
         
-        function loadAdminActivity() {
-            const search = document.getElementById('searchActivity').value.toLowerCase();
-            fetch(`${API_BASE}/admin/activity?limit=500`, {
-                headers: { 'Authorization': `Bearer ${authToken}` }
-            })
-            .then(res => res.json())
-            .then(activities => {
+        async function loadAdminActivity() {
+            try {
+                const search = document.getElementById('searchActivity').value.toLowerCase();
+                const response = await fetch(`${API_BASE}/admin/activity?limit=500`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+                if (!response.ok) throw new Error('Lỗi tải activity');
+                const activities = await response.json();
+                
                 let filtered = activities.filter(a => 
                     a.admin_username.toLowerCase().includes(search) ||
                     a.action.toLowerCase().includes(search) ||
@@ -1124,16 +1135,19 @@
                 });
                 
                 createPagination('activityPagination', total, currentPage.activity, loadAdminActivity);
-            })
-            .catch(err => showNotification('Lỗi tải activity', true));
+            } catch (err) {
+                showNotification('Lỗi tải activity', true);
+            }
         }
         
-        function loadChatMessages() {
-            fetch(`${API_BASE}/admin/chat?limit=100`, {
-                headers: { 'Authorization': `Bearer ${authToken}` }
-            })
-            .then(res => res.json())
-            .then(messages => {
+        async function loadChatMessages() {
+            try {
+                const response = await fetch(`${API_BASE}/admin/chat?limit=100`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+                if (!response.ok) throw new Error('Lỗi tải chat');
+                const messages = await response.json();
+                
                 const chat = document.getElementById('chatMessages');
                 chat.innerHTML = '';
                 messages.forEach(msg => {
@@ -1148,59 +1162,63 @@
                 });
                 chat.scrollTop = chat.scrollHeight;
                 if (messages.length > 0) lastChatId = messages[0].id;
-            })
-            .catch(err => showNotification('Lỗi tải chat', true));
+            } catch (err) {
+                showNotification('Lỗi tải chat', true);
+            }
         }
         
-        function sendChatMessage() {
+        async function sendChatMessage() {
             const input = document.getElementById('chatInput');
             const message = input.value.trim();
             if (!message) return;
             
             showLoader('sendChatBtn', 'Đang gửi...');
             
-            fetch(`${API_BASE}/admin/chat`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${authToken}`
-                },
-                body: JSON.stringify({ username: currentUsername, message })
-            })
-            .then(res => res.json())
-            .then(data => {
-                removeLoader('sendChatBtn', 'Gửi');
+            try {
+                const response = await fetch(`${API_BASE}/admin/chat`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify({ message })
+                });
+                const data = await response.json();
+                
+                removeLoader('sendChatBtn', '<i class="fas fa-paper-plane"></i> Gửi');
+                
                 if (data.success) {
                     input.value = '';
                     loadChatMessages();
                 } else {
                     showNotification('Lỗi gửi tin nhắn', true);
                 }
-            })
-            .catch(err => {
-                removeLoader('sendChatBtn', 'Gửi');
+            } catch (err) {
+                removeLoader('sendChatBtn', '<i class="fas fa-paper-plane"></i> Gửi');
                 showNotification('Lỗi gửi tin nhắn', true);
-            });
+            }
         }
         
-        function createKey() {
+        async function createKey() {
             const prefix = document.getElementById('keyPrefix').value;
             const hours = document.getElementById('keyHours').value;
             const permanent = document.getElementById('keyPermanent').checked;
             
             showLoader('createKeyBtn', 'Đang tạo...');
             
-            fetch(`${API_BASE}/admin/create-key`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${authToken}`
-                },
-                body: JSON.stringify({ hours, permanent, keyPrefix, admin_username: currentUsername })
-            })
-            .then(res => res.json())
-            .then(data => {
-                removeLoader('createKeyBtn', 'Tạo Key');
+            try {
+                const response = await fetch(`${API_BASE}/admin/create-key`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify({ hours, permanent, keyPrefix })
+                });
+                const data = await response.json();
+                
+                removeLoader('createKeyBtn', '<i class="fas fa-key"></i> Tạo Key');
+                
                 if (data.success) {
                     document.getElementById('newKeyValue').textContent = data.key;
                     document.getElementById('newKeyExpiry').textContent = `Hết hạn: ${data.permanent ? 'Vĩnh viễn' : data.expires}`;
@@ -1210,11 +1228,10 @@
                 } else {
                     showNotification(data.error || 'Lỗi tạo key', true);
                 }
-            })
-            .catch(err => {
-                removeLoader('createKeyBtn', 'Tạo Key');
+            } catch (err) {
+                removeLoader('createKeyBtn', '<i class="fas fa-key"></i> Tạo Key');
                 showNotification('Lỗi tạo key', true);
-            });
+            }
         }
         
         function editKeyExpiry(key) {
@@ -1222,23 +1239,25 @@
             document.getElementById('keyEditModal').style.display = 'flex';
         }
         
-        document.getElementById('saveKeyEditBtn').addEventListener('click', () => {
+        async function saveKeyEdit() {
             const hours = document.getElementById('editKeyHours').value;
             const permanent = document.getElementById('editKeyPermanent').checked;
             
             showLoader('saveKeyEditBtn', 'Đang lưu...');
             
-            fetch(`${API_BASE}/admin/update-key-expiry`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${authToken}`
-                },
-                body: JSON.stringify({ key: currentEditKey, hours, permanent, admin_username: currentUsername })
-            })
-            .then(res => res.json())
-            .then(data => {
-                removeLoader('saveKeyEditBtn', 'Lưu thay đổi');
+            try {
+                const response = await fetch(`${API_BASE}/admin/update-key-expiry`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify({ key: currentEditKey, hours, permanent })
+                });
+                const data = await response.json();
+                
+                removeLoader('saveKeyEditBtn', '<i class="fas fa-save"></i> Lưu thay đổi');
+                
                 if (data.success) {
                     document.getElementById('keyEditModal').style.display = 'none';
                     showNotification('Cập nhật key thành công');
@@ -1246,43 +1265,42 @@
                 } else {
                     showNotification(data.error || 'Lỗi cập nhật key', true);
                 }
-            })
-            .catch(err => {
-                removeLoader('saveKeyEditBtn', 'Lưu thay đổi');
+            } catch (err) {
+                removeLoader('saveKeyEditBtn', '<i class="fas fa-save"></i> Lưu thay đổi');
                 showNotification('Lỗi cập nhật key', true);
-            });
-        });
+            }
+        }
         
-        document.getElementById('closeKeyEditModal').addEventListener('click', () => {
-            document.getElementById('keyEditModal').style.display = 'none';
-        });
-        
-        function deleteKey(key) {
+        async function deleteKey(key) {
             if (!confirm('Xác nhận xóa key?')) return;
             
-            fetch(`${API_BASE}/admin/delete-key/${key}?admin_username=${currentUsername}`, {
-                method: 'DELETE',
-                headers: { 'Authorization': `Bearer ${authToken}` }
-            })
-            .then(res => res.json())
-            .then(data => {
+            try {
+                const response = await fetch(`${API_BASE}/admin/delete-key/${key}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+                const data = await response.json();
+                
                 if (data.success) {
                     showNotification('Xóa key thành công');
                     loadKeys();
                 } else {
                     showNotification(data.error || 'Lỗi xóa key', true);
                 }
-            })
-            .catch(err => showNotification('Lỗi xóa key', true));
+            } catch (err) {
+                showNotification('Lỗi xóa key', true);
+            }
         }
         
-        function viewUserDetail(userId) {
+        async function viewUserDetail(userId) {
             currentUserId = userId;
-            fetch(`${API_BASE}/admin/users`, {
-                headers: { 'Authorization': `Bearer ${authToken}` }
-            })
-            .then(res => res.json())
-            .then(users => {
+            try {
+                const response = await fetch(`${API_BASE}/admin/users`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+                if (!response.ok) throw new Error('Lỗi tải thông tin user');
+                const users = await response.json();
+                
                 const user = users.find(u => u.user_id === userId);
                 if (!user) return;
                 
@@ -1315,17 +1333,20 @@
                     </div>
                 `;
                 document.getElementById('userDetailModal').style.display = 'flex';
-            })
-            .catch(err => showNotification('Lỗi tải thông tin user', true));
+            } catch (err) {
+                showNotification('Lỗi tải thông tin user', true);
+            }
         }
         
-        document.getElementById('viewKeyHistoryBtn').addEventListener('click', () => {
-            document.getElementById('userDetailModal').style.display = 'none';
-            fetch(`${API_BASE}/admin/user-key-history/${currentUserId}?limit=100`, {
-                headers: { 'Authorization': `Bearer ${authToken}` }
-            })
-            .then(res => res.json())
-            .then(history => {
+        async function viewKeyHistory() {
+            try {
+                const response = await fetch(`${API_BASE}/admin/user-key-history/${currentUserId}?limit=100`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+                if (!response.ok) throw new Error('Lỗi tải lịch sử key');
+                const history = await response.json();
+                
+                document.getElementById('userDetailModal').style.display = 'none';
                 const content = document.getElementById('keyHistoryContent');
                 content.innerHTML = '';
                 history.forEach(item => {
@@ -1339,57 +1360,62 @@
                     content.appendChild(div);
                 });
                 document.getElementById('keyHistoryModal').style.display = 'flex';
-            })
-            .catch(err => showNotification('Lỗi tải lịch sử key', true));
-        });
+            } catch (err) {
+                showNotification('Lỗi tải lịch sử key', true);
+            }
+        }
         
-        function banUser(userId) {
+        async function banUser(userId) {
             if (!confirm('Xác nhận ban user?')) return;
             
-            fetch(`${API_BASE}/admin/ban-user`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${authToken}`
-                },
-                body: JSON.stringify({ user_id: userId, admin_username: currentUsername })
-            })
-            .then(res => res.json())
-            .then(data => {
+            try {
+                const response = await fetch(`${API_BASE}/admin/ban-user`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify({ user_id: userId })
+                });
+                const data = await response.json();
+                
                 if (data.success) {
                     showNotification('Ban user thành công');
                     loadUsers();
                 } else {
                     showNotification(data.error || 'Lỗi ban user', true);
                 }
-            })
-            .catch(err => showNotification('Lỗi ban user', true));
+            } catch (err) {
+                showNotification('Lỗi ban user', true);
+            }
         }
         
-        function unbanUser(userId) {
+        async function unbanUser(userId) {
             if (!confirm('Xác nhận unban user?')) return;
             
-            fetch(`${API_BASE}/admin/unban-user`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${authToken}`
-                },
-                body: JSON.stringify({ user_id: userId, admin_username: currentUsername })
-            })
-            .then(res => res.json())
-            .then(data => {
+            try {
+                const response = await fetch(`${API_BASE}/admin/unban-user`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify({ user_id: userId })
+                });
+                const data = await response.json();
+                
                 if (data.success) {
                     showNotification('Unban user thành công');
                     loadUsers();
                 } else {
                     showNotification(data.error || 'Lỗi unban user', true);
                 }
-            })
-            .catch(err => showNotification('Lỗi unban user', true));
+            } catch (err) {
+                showNotification('Lỗi unban user', true);
+            }
         }
         
-        function createAdmin() {
+        async function createAdmin() {
             const username = document.getElementById('newAdminUsername').value;
             const password = document.getElementById('newAdminPassword').value;
             
@@ -1400,17 +1426,19 @@
             
             showLoader('createAdminBtn', 'Đang tạo...');
             
-            fetch(`${API_BASE}/admin/create-admin`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${authToken}`
-                },
-                body: JSON.stringify({ username, password, admin_username: currentUsername })
-            })
-            .then(res => res.json())
-            .then(data => {
-                removeLoader('createAdminBtn', 'Tạo Admin');
+            try {
+                const response = await fetch(`${API_BASE}/admin/create-admin`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify({ username, password })
+                });
+                const data = await response.json();
+                
+                removeLoader('createAdminBtn', '<i class="fas fa-plus"></i> Tạo Admin');
+                
                 if (data.success) {
                     document.getElementById('newAdminUsername').value = '';
                     document.getElementById('newAdminPassword').value = '';
@@ -1419,14 +1447,13 @@
                 } else {
                     showNotification(data.error || 'Lỗi tạo admin', true);
                 }
-            })
-            .catch(err => {
-                removeLoader('createAdminBtn', 'Tạo Admin');
+            } catch (err) {
+                removeLoader('createAdminBtn', '<i class="fas fa-plus"></i> Tạo Admin');
                 showNotification('Lỗi tạo admin', true);
-            });
+            }
         }
         
-        function toggleSuperAdmin(username, currentSuper) {
+        async function toggleSuperAdmin(username, currentSuper) {
             if (!isOwner) {
                 showNotification('Chỉ owner mới có quyền này', true);
                 return;
@@ -1434,27 +1461,29 @@
             
             if (!confirm(`Xác nhận ${currentSuper ? 'hạ' : 'thăng'} cấp super admin cho ${username}?`)) return;
             
-            fetch(`${API_BASE}/admin/update-admin-role`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${authToken}`
-                },
-                body: JSON.stringify({ username, is_super_admin: !currentSuper, admin_username: currentUsername })
-            })
-            .then(res => res.json())
-            .then(data => {
+            try {
+                const response = await fetch(`${API_BASE}/admin/update-admin-role`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify({ username, is_super_admin: !currentSuper })
+                });
+                const data = await response.json();
+                
                 if (data.success) {
                     showNotification('Cập nhật vai trò thành công');
                     loadAdmins();
                 } else {
                     showNotification(data.error || 'Lỗi cập nhật vai trò', true);
                 }
-            })
-            .catch(err => showNotification('Lỗi cập nhật vai trò', true));
+            } catch (err) {
+                showNotification('Lỗi cập nhật vai trò', true);
+            }
         }
         
-        function deleteAdmin(username) {
+        async function deleteAdmin(username) {
             if (!isOwner) {
                 showNotification('Chỉ owner mới có quyền này', true);
                 return;
@@ -1462,35 +1491,39 @@
             
             if (!confirm(`Xác nhận xóa admin ${username}?`)) return;
             
-            fetch(`${API_BASE}/admin/delete-admin/${username}?admin_username=${currentUsername}`, {
-                method: 'DELETE',
-                headers: { 'Authorization': `Bearer ${authToken}` }
-            })
-            .then(res => res.json())
-            .then(data => {
+            try {
+                const response = await fetch(`${API_BASE}/admin/delete-admin/${username}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+                const data = await response.json();
+                
                 if (data.success) {
                     showNotification('Xóa admin thành công');
                     loadAdmins();
                 } else {
                     showNotification(data.error || 'Lỗi xóa admin', true);
                 }
-            })
-            .catch(err => showNotification('Lỗi xóa admin', true));
+            } catch (err) {
+                showNotification('Lỗi xóa admin', true);
+            }
         }
         
-        function backupDatabase() {
-            fetch(`${API_BASE}/admin/backup`, {
-                headers: { 'Authorization': `Bearer ${authToken}` }
-            })
-            .then(res => res.json())
-            .then(data => {
+        async function backupDatabase() {
+            try {
+                const response = await fetch(`${API_BASE}/admin/backup`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+                const data = await response.json();
+                
                 if (data.success) {
                     showNotification('Backup thành công: ' + data.backup_path);
                 } else {
                     showNotification(data.error || 'Lỗi backup', true);
                 }
-            })
-            .catch(err => showNotification('Lỗi backup', true));
+            } catch (err) {
+                showNotification('Lỗi backup', true);
+            }
         }
         
         // Khởi tạo
@@ -1534,6 +1567,11 @@
             document.getElementById('closeKeyHistoryModal').addEventListener('click', () => {
                 document.getElementById('keyHistoryModal').style.display = 'none';
             });
+            document.getElementById('closeKeyEditModal').addEventListener('click', () => {
+                document.getElementById('keyEditModal').style.display = 'none';
+            });
+            document.getElementById('saveKeyEditBtn').addEventListener('click', saveKeyEdit);
+            document.getElementById('viewKeyHistoryBtn').addEventListener('click', viewKeyHistory);
             
             window.addEventListener('click', e => {
                 if (e.target === document.getElementById('userDetailModal')) {
@@ -1548,20 +1586,22 @@
             });
         });
         
-        function login() {
+        async function login() {
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
             
             showLoader('loginBtn', 'Đang đăng nhập...');
             
-            fetch(`${API_BASE}/admin/login`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ username, password })
-            })
-            .then(res => res.json())
-            .then(data => {
+            try {
+                const response = await fetch(`${API_BASE}/admin/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+                const data = await response.json();
+                
                 removeLoader('loginBtn', '<i class="fas fa-sign-in-alt"></i> Đăng nhập');
+                
                 if (data.success) {
                     authToken = data.token;
                     currentUsername = username;
@@ -1576,13 +1616,12 @@
                     showDashboard();
                     showNotification('Đăng nhập thành công');
                 } else {
-                    showNotification('Sai username hoặc password', true);
+                    showNotification(data.error || 'Sai username hoặc password', true);
                 }
-            })
-            .catch(err => {
+            } catch (err) {
                 removeLoader('loginBtn', '<i class="fas fa-sign-in-alt"></i> Đăng nhập');
                 showNotification('Lỗi đăng nhập', true);
-            });
+            }
         }
         
         function showDashboard() {
@@ -1623,13 +1662,19 @@
             showNotification('Đã đăng xuất');
         }
         
-        function refreshAll() {
-            loadKeys();
-            loadUsers();
-            if (isSuperAdmin || isOwner) loadAdmins();
-            if (isOwner) loadAdminActivity();
-            loadChatMessages();
-            showNotification('Đã refresh');
+        async function refreshAll() {
+            try {
+                await Promise.all([
+                    loadKeys(),
+                    loadUsers(),
+                    isSuperAdmin || isOwner ? loadAdmins() : Promise.resolve(),
+                    isOwner ? loadAdminActivity() : Promise.resolve(),
+                    loadChatMessages()
+                ]);
+                showNotification('Đã refresh');
+            } catch (err) {
+                showNotification('Lỗi refresh', true);
+            }
         }
     </script>
 </body>
