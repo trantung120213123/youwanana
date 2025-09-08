@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Panel - Key System</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -895,16 +896,65 @@
     
     <script>
         const API_BASE = 'https://serverluexreal.onrender.com';
-        let authToken = '';
-        let currentUsername = '';
-        let isSuperAdmin = false;
-        let isOwner = false;
+        let authToken = localStorage.getItem('adminToken') || '';
+        let currentUsername = localStorage.getItem('adminUsername') || '';
+        let isSuperAdmin = localStorage.getItem('isSuperAdmin') === 'true';
+        let isOwner = localStorage.getItem('isOwner') === 'true';
         let currentPage = { keys: 1, users: 1, activity: 1 };
         const itemsPerPage = 20;
         let currentEditKey = '';
         let currentUserId = '';
-        let lastChatId = 0;
-        
+        let socket;
+
+        // Initialize Socket.IO
+        function initSocket() {
+            if (!authToken) return;
+            socket = io(API_BASE, {
+                auth: { token: authToken }
+            });
+
+            socket.on('connect', () => {
+                console.log('Connected to Socket.IO server');
+            });
+
+            socket.on('history', (messages) => {
+                const chat = document.getElementById('chatMessages');
+                chat.innerHTML = '';
+                messages.forEach(msg => {
+                    const div = document.createElement('div');
+                    div.className = 'chat-message ' + (msg.admin_username === currentUsername ? 'message-self' : 'message-other');
+                    div.innerHTML = `
+                        <div class="message-sender">${msg.admin_username}</div>
+                        <div>${msg.message}</div>
+                        <div class="message-time">${formatDate(msg.created_at)}</div>
+                    `;
+                    chat.appendChild(div);
+                });
+                chat.scrollTop = chat.scrollHeight;
+            });
+
+            socket.on('message', (msg) => {
+                const chat = document.getElementById('chatMessages');
+                const div = document.createElement('div');
+                div.className = 'chat-message ' + (msg.admin_username === currentUsername ? 'message-self' : 'message-other');
+                div.innerHTML = `
+                    <div class="message-sender">${msg.admin_username}</div>
+                    <div>${msg.message}</div>
+                    <div class="message-time">${formatDate(msg.created_at)}</div>
+                `;
+                chat.appendChild(div);
+                chat.scrollTop = chat.scrollHeight;
+            });
+
+            socket.on('error', (err) => {
+                showNotification(err.message || 'Lỗi kết nối chat', true);
+            });
+
+            socket.on('disconnect', () => {
+                console.log('Disconnected from Socket.IO server');
+            });
+        }
+
         function showNotification(message, error = false) {
             const notif = document.getElementById('notification');
             notif.textContent = message;
@@ -1090,8 +1140,10 @@
                         <td>${admin.is_super_admin ? '<span class="status-badge status-active">Yes</span>' : '<span class="status-badge status-expired">No</span>'}</td>
                         <td>${formatDate(admin.created_at)}</td>
                         <td>
-                            <button class="action-btn btn-warning" onclick="toggleSuperAdmin('${admin.username}', ${admin.is_super_admin})"><i class="fas fa-user-edit"></i> Toggle Super</button>
-                            <button class="action-btn btn-danger" onclick="deleteAdmin('${admin.username}')"><i class="fas fa-trash"></i> Delete</button>
+                            ${admin.username !== 'owner' ? `
+                                <button class="action-btn btn-warning" onclick="toggleSuperAdmin('${admin.username}', ${admin.is_super_admin})"><i class="fas fa-user-edit"></i> Toggle Super</button>
+                                <button class="action-btn btn-danger" onclick="deleteAdmin('${admin.username}')"><i class="fas fa-trash"></i> Delete</button>
+                            ` : ''}
                         </td>
                     `;
                     tbody.appendChild(tr);
@@ -1141,27 +1193,14 @@
         }
         
         async function loadChatMessages() {
+            if (!socket || !socket.connected) {
+                initSocket();
+            }
             try {
-                const response = await fetch(`${API_BASE}/admin/chat?limit=100`, {
+                const response = await fetch(`${API_BASE}/admin/activity?limit=100`, {
                     headers: { 'Authorization': `Bearer ${authToken}` }
                 });
                 if (!response.ok) throw new Error('Lỗi tải chat');
-                const messages = await response.json();
-                
-                const chat = document.getElementById('chatMessages');
-                chat.innerHTML = '';
-                messages.forEach(msg => {
-                    const div = document.createElement('div');
-                    div.className = 'chat-message ' + (msg.admin_username === currentUsername ? 'message-self' : 'message-other');
-                    div.innerHTML = `
-                        <div class="message-sender">${msg.admin_username}</div>
-                        <div>${msg.message}</div>
-                        <div class="message-time">${formatDate(msg.created_at)}</div>
-                    `;
-                    chat.appendChild(div);
-                });
-                chat.scrollTop = chat.scrollHeight;
-                if (messages.length > 0) lastChatId = messages[0].id;
             } catch (err) {
                 showNotification('Lỗi tải chat', true);
             }
@@ -1170,33 +1209,16 @@
         async function sendChatMessage() {
             const input = document.getElementById('chatInput');
             const message = input.value.trim();
-            if (!message) return;
+            if (!message || !socket || !socket.connected) {
+                showNotification('Không thể gửi tin nhắn: chưa kết nối hoặc tin nhắn trống', true);
+                return;
+            }
             
             showLoader('sendChatBtn', 'Đang gửi...');
             
-            try {
-                const response = await fetch(`${API_BASE}/admin/chat`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${authToken}`
-                    },
-                    body: JSON.stringify({ message })
-                });
-                const data = await response.json();
-                
-                removeLoader('sendChatBtn', '<i class="fas fa-paper-plane"></i> Gửi');
-                
-                if (data.success) {
-                    input.value = '';
-                    loadChatMessages();
-                } else {
-                    showNotification('Lỗi gửi tin nhắn', true);
-                }
-            } catch (err) {
-                removeLoader('sendChatBtn', '<i class="fas fa-paper-plane"></i> Gửi');
-                showNotification('Lỗi gửi tin nhắn', true);
-            }
+            socket.emit('message', message);
+            input.value = '';
+            removeLoader('sendChatBtn', '<i class="fas fa-paper-plane"></i> Gửi');
         }
         
         async function createKey() {
@@ -1213,7 +1235,7 @@
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${authToken}`
                     },
-                    body: JSON.stringify({ hours, permanent, keyPrefix })
+                    body: JSON.stringify({ hours, permanent, keyPrefix: prefix })
                 });
                 const data = await response.json();
                 
@@ -1221,7 +1243,7 @@
                 
                 if (data.success) {
                     document.getElementById('newKeyValue').textContent = data.key;
-                    document.getElementById('newKeyExpiry').textContent = `Hết hạn: ${data.permanent ? 'Vĩnh viễn' : data.expires}`;
+                    document.getElementById('newKeyExpiry').textContent = `Hết hạn: ${data.permanent ? 'Vĩnh viễn' : formatDate(data.expires)}`;
                     document.getElementById('createdKeyInfo').style.display = 'block';
                     showNotification('Tạo key thành công');
                     loadKeys();
@@ -1526,19 +1548,111 @@
             }
         }
         
+        async function login() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            showLoader('loginBtn', 'Đang đăng nhập...');
+            
+            try {
+                const response = await fetch(`${API_BASE}/admin/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+                const data = await response.json();
+                
+                removeLoader('loginBtn', '<i class="fas fa-sign-in-alt"></i> Đăng nhập');
+                
+                if (data.success) {
+                    authToken = data.token;
+                    currentUsername = username;
+                    isSuperAdmin = data.is_super_admin;
+                    isOwner = data.is_owner;
+                    
+                    localStorage.setItem('adminToken', authToken);
+                    localStorage.setItem('adminUsername', currentUsername);
+                    localStorage.setItem('isSuperAdmin', isSuperAdmin);
+                    localStorage.setItem('isOwner', isOwner);
+                    
+                    showDashboard();
+                    initSocket();
+                    showNotification('Đăng nhập thành công');
+                } else {
+                    showNotification(data.error || 'Sai username hoặc password', true);
+                }
+            } catch (err) {
+                removeLoader('loginBtn', '<i class="fas fa-sign-in-alt"></i> Đăng nhập');
+                showNotification('Lỗi đăng nhập', true);
+            }
+        }
+        
+        function showDashboard() {
+            document.getElementById('loginForm').style.display = 'none';
+            document.getElementById('dashboard').style.display = 'block';
+            document.getElementById('headerControls').style.display = 'flex';
+            
+            const roleBadge = document.getElementById('userRoleBadge');
+            if (isOwner) {
+                roleBadge.textContent = 'Owner';
+                roleBadge.classList.add('role-owner');
+                document.getElementById('adminsTabBtn').style.display = 'block';
+                document.getElementById('activityTabBtn').style.display = 'block';
+            } else if (isSuperAdmin) {
+                roleBadge.textContent = 'Super Admin';
+                roleBadge.classList.add('role-superadmin');
+                document.getElementById('adminsTabBtn').style.display = 'block';
+                document.getElementById('activityTabBtn').style.display = 'none';
+            } else {
+                roleBadge.textContent = 'Admin';
+                roleBadge.classList.add('role-admin');
+                document.getElementById('adminsTabBtn').style.display = 'none';
+                document.getElementById('activityTabBtn').style.display = 'none';
+            }
+            
+            switchTab('keys');
+        }
+        
+        function logout() {
+            if (socket) socket.disconnect();
+            localStorage.clear();
+            authToken = '';
+            currentUsername = '';
+            isSuperAdmin = false;
+            isOwner = false;
+            document.getElementById('dashboard').style.display = 'none';
+            document.getElementById('loginForm').style.display = 'block';
+            document.getElementById('headerControls').style.display = 'none';
+            showNotification('Đã đăng xuất');
+        }
+        
+        async function refreshAll() {
+            try {
+                await Promise.all([
+                    loadKeys(),
+                    loadUsers(),
+                    isSuperAdmin || isOwner ? loadAdmins() : Promise.resolve(),
+                    isOwner ? loadAdminActivity() : Promise.resolve()
+                ]);
+                showNotification('Đã refresh');
+            } catch (err) {
+                showNotification('Lỗi refresh', true);
+            }
+        }
+        
         // Khởi tạo
         document.addEventListener('DOMContentLoaded', () => {
-            const savedToken = localStorage.getItem('adminToken');
-            const savedUsername = localStorage.getItem('adminUsername');
-            const savedSuper = localStorage.getItem('isSuperAdmin') === 'true';
-            const savedOwner = localStorage.getItem('isOwner') === 'true';
-            
-            if (savedToken && savedUsername) {
-                authToken = savedToken;
-                currentUsername = savedUsername;
-                isSuperAdmin = savedSuper;
-                isOwner = savedOwner;
-                showDashboard();
+            if (authToken) {
+                fetch(`${API_BASE}/admin/keys`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                }).then(response => {
+                    if (response.ok) {
+                        showDashboard();
+                        initSocket();
+                    } else {
+                        logout();
+                    }
+                }).catch(() => logout());
             }
             
             document.getElementById('loginBtn').addEventListener('click', login);
@@ -1585,97 +1699,6 @@
                 }
             });
         });
-        
-        async function login() {
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
-            
-            showLoader('loginBtn', 'Đang đăng nhập...');
-            
-            try {
-                const response = await fetch(`${API_BASE}/admin/login`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ username, password })
-                });
-                const data = await response.json();
-                
-                removeLoader('loginBtn', '<i class="fas fa-sign-in-alt"></i> Đăng nhập');
-                
-                if (data.success) {
-                    authToken = data.token;
-                    currentUsername = username;
-                    isSuperAdmin = data.is_super_admin;
-                    isOwner = data.is_owner;
-                    
-                    localStorage.setItem('adminToken', authToken);
-                    localStorage.setItem('adminUsername', currentUsername);
-                    localStorage.setItem('isSuperAdmin', isSuperAdmin);
-                    localStorage.setItem('isOwner', isOwner);
-                    
-                    showDashboard();
-                    showNotification('Đăng nhập thành công');
-                } else {
-                    showNotification(data.error || 'Sai username hoặc password', true);
-                }
-            } catch (err) {
-                removeLoader('loginBtn', '<i class="fas fa-sign-in-alt"></i> Đăng nhập');
-                showNotification('Lỗi đăng nhập', true);
-            }
-        }
-        
-        function showDashboard() {
-            document.getElementById('loginForm').style.display = 'none';
-            document.getElementById('dashboard').style.display = 'block';
-            document.getElementById('headerControls').style.display = 'flex';
-            
-            const roleBadge = document.getElementById('userRoleBadge');
-            if (isOwner) {
-                roleBadge.textContent = 'Owner';
-                roleBadge.classList.add('role-owner');
-                document.getElementById('adminsTabBtn').style.display = 'block';
-                document.getElementById('activityTabBtn').style.display = 'block';
-            } else if (isSuperAdmin) {
-                roleBadge.textContent = 'Super Admin';
-                roleBadge.classList.add('role-superadmin');
-                document.getElementById('adminsTabBtn').style.display = 'block';
-                document.getElementById('activityTabBtn').style.display = 'none';
-            } else {
-                roleBadge.textContent = 'Admin';
-                roleBadge.classList.add('role-admin');
-                document.getElementById('adminsTabBtn').style.display = 'none';
-                document.getElementById('activityTabBtn').style.display = 'none';
-            }
-            
-            switchTab('keys');
-        }
-        
-        function logout() {
-            localStorage.clear();
-            authToken = '';
-            currentUsername = '';
-            isSuperAdmin = false;
-            isOwner = false;
-            document.getElementById('dashboard').style.display = 'none';
-            document.getElementById('loginForm').style.display = 'block';
-            document.getElementById('headerControls').style.display = 'none';
-            showNotification('Đã đăng xuất');
-        }
-        
-        async function refreshAll() {
-            try {
-                await Promise.all([
-                    loadKeys(),
-                    loadUsers(),
-                    isSuperAdmin || isOwner ? loadAdmins() : Promise.resolve(),
-                    isOwner ? loadAdminActivity() : Promise.resolve(),
-                    loadChatMessages()
-                ]);
-                showNotification('Đã refresh');
-            } catch (err) {
-                showNotification('Lỗi refresh', true);
-            }
-        }
     </script>
 </body>
 </html>
