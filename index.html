@@ -955,6 +955,60 @@
             });
         }
 
+        // Hàm xác thực token
+        function verifyToken() {
+            fetch(`${API_BASE}/admin/verify-token`, {
+                headers: { 'Authorization': `Bearer ${authToken}` }
+            }).then(response => {
+                if (response.ok) {
+                    return response.json().then(data => {
+                        currentUsername = data.username;
+                        isSuperAdmin = data.is_super_admin;
+                        isOwner = data.is_owner;
+                        localStorage.setItem('adminUsername', currentUsername);
+                        localStorage.setItem('isSuperAdmin', isSuperAdmin);
+                        localStorage.setItem('isOwner', isOwner);
+                        showDashboard();
+                        initSocket();
+                    });
+                } else {
+                    return response.json().then(data => {
+                        console.error('Lỗi xác thực:', data.error);
+                        showNotification(data.error || 'Lỗi xác thực, vui lòng đăng nhập lại', true);
+                        logout();
+                    });
+                }
+            }).catch(err => {
+                console.error('Lỗi kết nối:', err);
+                showNotification('Lỗi kết nối server, vui lòng thử lại', true);
+                logout();
+            });
+        }
+
+        // Hàm làm mới token
+        function refreshToken() {
+            fetch(`${API_BASE}/admin/refresh-token`, {
+                headers: { 'Authorization': `Bearer ${authToken}` }
+            }).then(response => {
+                if (response.ok) {
+                    return response.json().then(data => {
+                        authToken = data.token;
+                        localStorage.setItem('adminToken', authToken);
+                        console.log('Token refreshed successfully');
+                    });
+                } else {
+                    console.error('Lỗi làm mới token');
+                    logout();
+                }
+            }).catch(err => {
+                console.error('Lỗi kết nối khi làm mới token:', err);
+                logout();
+            });
+        }
+
+        // Định kỳ làm mới token (mỗi 12 giờ)
+        setInterval(refreshToken, 12 * 60 * 60 * 1000);
+
         function showNotification(message, error = false) {
             const notif = document.getElementById('notification');
             notif.textContent = message;
@@ -1195,14 +1249,6 @@
         async function loadChatMessages() {
             if (!socket || !socket.connected) {
                 initSocket();
-            }
-            try {
-                const response = await fetch(`${API_BASE}/admin/activity?limit=100`, {
-                    headers: { 'Authorization': `Bearer ${authToken}` }
-                });
-                if (!response.ok) throw new Error('Lỗi tải chat');
-            } catch (err) {
-                showNotification('Lỗi tải chat', true);
             }
         }
         
@@ -1578,7 +1624,6 @@
                     showDashboard();
                     initSocket();
                     showNotification('Đăng nhập thành công');
-                    localStorage.setItem('token', tokenFromServer); // tokenFromServer là token trả về
                 } else {
                     showNotification(data.error || 'Sai username hoặc password', true);
                 }
@@ -1644,16 +1689,7 @@
         // Khởi tạo
         document.addEventListener('DOMContentLoaded', () => {
             if (authToken) {
-                fetch(`${API_BASE}/admin/keys`, {
-                    headers: { 'Authorization': `Bearer ${authToken}` }
-                }).then(response => {
-                    if (response.ok) {
-                        showDashboard();
-                        initSocket();
-                    } else {
-                        logout();
-                    }
-                }).catch(() => logout());
+                verifyToken();
             }
             
             document.getElementById('loginBtn').addEventListener('click', login);
